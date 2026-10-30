@@ -28,6 +28,15 @@ function Get-ExplorerPath([long]$hwnd) {
     return $null
 }
 
+# What to report for a document: its path, or only its name while it has
+# not been saved yet ("Document1").
+function New-PathDetail($Foreground, [string]$Path) {
+    $isPath = $Path.Contains('\') -or $Path.Contains('://')
+    if ($isPath) { return @{ hwnd = $Foreground.hwnd; exe = $Foreground.exe; path = $Path } }
+    return @{ hwnd = $Foreground.hwnd; exe = $Foreground.exe; document = $Path }
+}
+
+if ($script:testMode) { return }
 Wait-Initialize
 Send-Status 'running' 'Waiting for Office or Explorer to be in front'
 $lastKey = $null
@@ -47,10 +56,7 @@ while ($true) {
         if ($path) {
             $key = "$($fg.hwnd)|$path"
             if ($key -ne $lastKey -or ([DateTime]::UtcNow - $lastSent).TotalSeconds -ge 15) {
-                # An unsaved document ("Document1") has a name but no path yet.
-                $isPath = $path.Contains('\') -or $path.Contains('://')
-                $detail = if ($isPath) { @{ hwnd = $fg.hwnd; exe = $fg.exe; path = $path } } else { @{ hwnd = $fg.hwnd; exe = $fg.exe; document = $path } }
-                Send-Message 'detail' $detail
+                Send-Message 'detail' (New-PathDetail $fg $path)
                 Send-Status 'running' 'Reading document paths'
                 $lastKey = $key
                 $lastSent = [DateTime]::UtcNow

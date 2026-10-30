@@ -50,16 +50,23 @@ function Test-TeamsMicrophone {
     return $false
 }
 
-function Get-MeetingTitle {
-    $pids = @(Get-Process -Name 'ms-teams', 'Teams' -ErrorAction SilentlyContinue | ForEach-Object { [uint32]$_.Id })
-    if (-not $pids.Count) { return $null }
-    foreach ($title in [TkWindows]::Titles($pids)) {
+# The meeting's name from the Teams window titles: the first that is not a
+# section of the main window.
+function Select-MeetingTitle([string[]]$Titles) {
+    foreach ($title in $Titles) {
         $clean = ($title -replace '\s*\|\s*Microsoft Teams.*$', '').Trim()
         if ($clean -and $clean -notmatch $hubPattern) { return $clean }
     }
     return $null
 }
 
+function Get-MeetingTitle {
+    $pids = @(Get-Process -Name 'ms-teams', 'Teams' -ErrorAction SilentlyContinue | ForEach-Object { [uint32]$_.Id })
+    if (-not $pids.Count) { return $null }
+    return Select-MeetingTitle ([TkWindows]::Titles($pids))
+}
+
+if ($script:testMode) { return }
 Wait-Initialize
 Send-Status 'running' 'Watching the microphone'
 $inMeeting = $false

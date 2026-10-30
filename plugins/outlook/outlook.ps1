@@ -107,6 +107,7 @@ function Send-MailCounts($outlook) {
     return $total
 }
 
+if ($script:testMode) { return }
 Wait-Initialize
 Send-Status 'running' 'Waiting for Outlook to be in front'
 $lastKey = $null

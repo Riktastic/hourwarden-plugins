@@ -51,8 +51,8 @@ function Test-Ignored([string]$path) {
     return $false
 }
 
-function Test-Burst {
-    $now = [DateTime]::UtcNow
+function Test-Burst([DateTime]$Now = [DateTime]::UtcNow) {
+    $now = $Now
     $script:burst.Enqueue($now)
     while ($script:burst.Count -and ($now - $script:burst.Peek()).TotalSeconds -gt 5) { [void]$script:burst.Dequeue() }
     if ($script:burst.Count -gt [int](Get-Setting 'max_burst' 20)) {
@@ -61,6 +61,7 @@ function Test-Burst {
     return $now -lt $script:quietUntil
 }
 
+if ($script:testMode) { return }
 Wait-Initialize
 Reset-Watchers
 $knownFolders = ($script:folders -join '|')

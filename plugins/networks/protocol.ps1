@@ -6,17 +6,27 @@
 # build-index.ps1; edit it here, in shared/.
 
 $ErrorActionPreference = 'Stop'
-$utf8 = New-Object System.Text.UTF8Encoding($false)
-$script:out = New-Object System.IO.StreamWriter([Console]::OpenStandardOutput(), $utf8)
-$script:out.AutoFlush = $true
-$script:in = New-Object System.IO.StreamReader([Console]::OpenStandardInput(), $utf8)
-$script:pendingLine = $script:in.ReadLineAsync()
 $script:hostPid = 0
 $script:settings = $null
 $script:foreground = $null
 $script:folders = @()
 
+# Unit tests set TIMEKEEPER_PLUGIN_TEST=1 and dot-source the plugin: nothing
+# is read from stdin, sent messages are collected in $script:sent, and the
+# plugin returns before its main loop (see test/Run-Tests.ps1).
+$script:testMode = [bool]$env:TIMEKEEPER_PLUGIN_TEST
+if ($script:testMode) {
+    $script:sent = New-Object System.Collections.ArrayList
+} else {
+    $utf8 = New-Object System.Text.UTF8Encoding($false)
+    $script:out = New-Object System.IO.StreamWriter([Console]::OpenStandardOutput(), $utf8)
+    $script:out.AutoFlush = $true
+    $script:in = New-Object System.IO.StreamReader([Console]::OpenStandardInput(), $utf8)
+    $script:pendingLine = $script:in.ReadLineAsync()
+}
+
 function Send-Message([string]$Method, $Params) {
+    if ($script:testMode) { [void]$script:sent.Add(@{ method = $Method; params = $Params }); return }
     $message = [ordered]@{ jsonrpc = '2.0'; method = $Method; params = $Params }
     $script:out.WriteLine(($message | ConvertTo-Json -Compress -Depth 8))
 }

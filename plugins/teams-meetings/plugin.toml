@@ -1,6 +1,6 @@
 id = "teams-meetings"
 name = "Teams meetings"
-version = "0.1.0"
+version = "0.1.1"
 author = "Timekeeper"
 category = "Meetings"
 description = "Notices Teams calls and meetings, also when Teams is in the background, and gives the meeting time to the customer named in the meeting title."

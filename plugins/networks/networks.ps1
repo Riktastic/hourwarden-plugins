@@ -9,28 +9,39 @@
 # Company VPN clients that use their own network adapter instead of Windows VPN.
 $vpnClients = 'AnyConnect|GlobalProtect|PANGP|Forti|Pulse|Ivanti|Check Point|Zscaler|WireGuard|OpenVPN|TAP-Windows|SonicWall|NetExtender|Juniper'
 
-function Get-CurrentNetwork {
-    $ignore = @(Get-Setting 'ignore_networks' @())
-    $adapters = @{}
-    foreach ($a in Get-NetAdapter -ErrorAction SilentlyContinue | Where-Object Status -eq 'Up') { $adapters[$a.Name] = $a }
-    $profiles = @(Get-NetConnectionProfile -ErrorAction SilentlyContinue | Where-Object { $ignore -notcontains $_.Name })
+# Chooses the network from connection profiles (Name, InterfaceAlias),
+# adapters by name (InterfaceDescription, HardwareInterface,
+# PhysicalMediaType) and Windows VPN connections (Name, ConnectionStatus).
+function Select-Network($Profiles, [hashtable]$Adapters, $Vpn, [bool]$PreferVpn, $Ignore) {
+    $Ignore = @($Ignore)
+    $Profiles = @($Profiles | Where-Object { $Ignore -notcontains $_.Name })
 
-    if (Get-Setting 'prefer_vpn' $true) {
-        $vpn = @(Get-VpnConnection -ErrorAction SilentlyContinue | Where-Object { $_.ConnectionStatus -eq 'Connected' -and $ignore -notcontains $_.Name })
-        if ($vpn.Count) { return @{ name = $vpn[0].Name; kind = 'vpn' } }
-        $client = $profiles | Where-Object { $adapters[$_.InterfaceAlias] -and $adapters[$_.InterfaceAlias].InterfaceDescription -match $vpnClients } | Select-Object -First 1
+    if ($PreferVpn) {
+        $connected = @($Vpn | Where-Object { $_.ConnectionStatus -eq 'Connected' -and $Ignore -notcontains $_.Name })
+        if ($connected.Count) { return @{ name = $connected[0].Name; kind = 'vpn' } }
+        $client = $Profiles | Where-Object { $Adapters[$_.InterfaceAlias] -and $Adapters[$_.InterfaceAlias].InterfaceDescription -match $vpnClients } | Select-Object -First 1
         if ($client) { return @{ name = $client.Name; kind = 'vpn' } }
     }
 
     # Physical adapters only: virtual ones (Hyper-V, WSL, Tailscale) say nothing about where you are.
-    $physical = @($profiles | Where-Object { $adapters[$_.InterfaceAlias] -and $adapters[$_.InterfaceAlias].HardwareInterface })
-    $wifi = $physical | Where-Object { $adapters[$_.InterfaceAlias].PhysicalMediaType -match '802\.11|Wireless' -or $_.InterfaceAlias -match 'Wi-?Fi|WLAN|Wireless' } | Select-Object -First 1
+    $physical = @($Profiles | Where-Object { $Adapters[$_.InterfaceAlias] -and $Adapters[$_.InterfaceAlias].HardwareInterface })
+    $wifi = $physical | Where-Object { $Adapters[$_.InterfaceAlias].PhysicalMediaType -match '802\.11|Wireless' -or $_.InterfaceAlias -match 'Wi-?Fi|WLAN|Wireless' } | Select-Object -First 1
     if ($wifi) { return @{ name = $wifi.Name; kind = 'wifi' } }
     $wired = $physical | Select-Object -First 1
     if ($wired) { return @{ name = $wired.Name; kind = 'wired' } }
     return $null
 }
 
+function Get-CurrentNetwork {
+    $adapters = @{}
+    foreach ($a in Get-NetAdapter -ErrorAction SilentlyContinue | Where-Object Status -eq 'Up') { $adapters[$a.Name] = $a }
+    $profiles = @(Get-NetConnectionProfile -ErrorAction SilentlyContinue)
+    $preferVpn = [bool](Get-Setting 'prefer_vpn' $true)
+    $vpn = if ($preferVpn) { @(Get-VpnConnection -ErrorAction SilentlyContinue) } else { @() }
+    return Select-Network $profiles $adapters $vpn $preferVpn @(Get-Setting 'ignore_networks' @())
+}
+
+if ($script:testMode) { return }
 Wait-Initialize
 Send-Status 'running' 'Watching the network'
 $last = $null

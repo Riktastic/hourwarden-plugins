@@ -50,6 +50,20 @@ function Get-SelectedTab([long]$hwnd) {
     return $null
 }
 
+# A tab name may carry the folder: "Contoso\Production\APP01".
+function Split-RdmEntry([string]$Entry) {
+    $i = $Entry.LastIndexOf('\')
+    if ($i -lt 0) { return @{ folder = $null; name = $Entry } }
+    return @{ folder = $Entry.Substring(0, $i); name = $Entry.Substring($i + 1) }
+}
+
+# Remote Desktop Connection titles start with the server: "app01.contoso.local - Remote Desktop Connection".
+function Get-MstscServer([string]$Title) {
+    $server = ($Title -split ' - ')[0].Trim()
+    if (-not $server -or $server -match '^Remote Desktop Connection$|^Verbinding met extern bureaublad$') { return $null }
+    return $server
+}
+
 function Get-RdpServer([int]$processId) {
     $connections = @(Get-NetTCPConnection -OwningProcess $processId -State Established -RemotePort 3389 -ErrorAction SilentlyContinue)
     if ($connections.Count -ne 1) { return $null }
@@ -57,6 +71,7 @@ function Get-RdpServer([int]$processId) {
     try { return [System.Net.Dns]::GetHostEntry($address).HostName } catch { return $address }
 }
 
+if ($script:testMode) { return }
 Wait-Initialize
 Send-Status 'running' 'Waiting for a remote desktop window'
 $lastKey = $null
@@ -71,13 +86,9 @@ while ($true) {
             Update-RdmEntries
             $entry = Get-SelectedTab $fg.hwnd
             if ($entry) {
-                # A tab name may carry the folder: "Contoso\Production\APP01".
-                $folder = $null
-                $name = $entry
-                if ($entry.Contains('\')) {
-                    $folder = $entry.Substring(0, $entry.LastIndexOf('\'))
-                    $name = $entry.Substring($entry.LastIndexOf('\') + 1)
-                }
+                $parts = Split-RdmEntry $entry
+                $folder = $parts.folder
+                $name = $parts.name
                 $known = $script:entries[$name]
                 if ($known) {
                     if ($known.folder) { $folder = $known.folder }
@@ -94,7 +105,7 @@ while ($true) {
                 default { Send-Status 'running' 'Reading Remote Desktop Manager tabs' }
             }
         } elseif ($fg -and $fg.exe -eq 'mstsc.exe' -and $fg.title) {
-            $server = ($fg.title -split ' - ')[0].Trim()
+            $server = Get-MstscServer $fg.title
             if ($server) { $detail = @{ hwnd = $fg.hwnd; exe = $fg.exe; document = $server; remote_server = $server } }
         }
     } catch {

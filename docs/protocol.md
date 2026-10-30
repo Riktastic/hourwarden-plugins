@@ -27,7 +27,8 @@ A plugin must exit when stdin closes, on `shutdown`, or when the process `host_p
 | Method | Params | Effect |
 |---|---|---|
 | `status` | `state`: `running`, `degraded` or `failing`; `message` | Shown in the plugin store. Send `degraded` with a clear reason when part of the plugin does not work. |
-| `detail` | `hwnd`, `exe`, optional `path`, `document`, `mail_domains` (list), `remote_server`, `remote_folder` | Adds information about that window. Used for 30 seconds, so repeat it now and then while it stays the same. |
+| `detail` | `hwnd`, `exe`, optional `path`, `document`, `mail_domains` (list), `remote_server`, `remote_folder`, `ticket_id`, `ticket_title` | Adds information about that window. Used for 30 seconds, so repeat it now and then while it stays the same. A `ticket_id` never changes the customer: the top bar offers it (with `ticket_title`) as the task. |
+| `calendar` | `items`: list of `key`, `start`, `end` (milliseconds since 1970), `subject`, `location`, `domains` (attendee mail domains) | The plugin's appointments, replacing what it sent before. The daily review offers them as time for the customer of the attendees or the subject. Kept for two hours, so send them again at least every hour. |
 | `meeting` | `active` (bool), `title` | A meeting for a known customer takes the time while it runs, also when you do not type. Repeat `active: true` at least every 20 seconds. |
 | `network` | `name`, `kind` (`wifi`, `wired`, `vpn`) | The current network, used only when nothing else decides. Repeat at least every 3 minutes. |
 | `file_changed` | `path`, `change` | A file saved in a customer folder; supports attribution for one minute. |

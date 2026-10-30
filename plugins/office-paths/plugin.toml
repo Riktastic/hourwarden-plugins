@@ -1,6 +1,6 @@
 id = "office-paths"
 name = "Office and Explorer paths"
-version = "0.1.0"
+version = "0.1.1"
 author = "Timekeeper"
 category = "Documents"
 description = "Gives the full path of the document open in Word, Excel and PowerPoint, and of the folder open in File Explorer, so customer folders are recognised even when the title only shows the file name."
