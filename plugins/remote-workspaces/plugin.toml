@@ -1,0 +1,25 @@
+id = "remote-workspaces"
+name = "Citrix, Azure Virtual Desktop and Horizon"
+version = "0.1.0"
+author = "Timekeeper"
+category = "Remote access"
+description = "Recognises the remote desktop or app you work in through Citrix Workspace, Azure Virtual Desktop and Windows 365 (Windows App, Remote Desktop client) and VMware Horizon. The workplace name is matched against customer names and aliases."
+api = 1
+platforms = ["windows"]
+permissions = [
+    "Reads the title of the remote workplace window in front",
+    "Runs a PowerShell script",
+]
+
+[run]
+command = "powershell"
+args = ["-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-File", "remote-workspaces.ps1"]
+
+[[settings]]
+key = "poll_seconds"
+label = "Check every"
+type = "number"
+description = "How often the window title is checked, in seconds."
+default = 2
+min = 1
+max = 30

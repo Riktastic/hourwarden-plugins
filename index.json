@@ -3,6 +3,16 @@
     "api":  1,
     "plugins":  [
                     {
+                        "id":  "admin-tools",
+                        "version":  "0.1.0",
+                        "path":  "plugins/admin-tools",
+                        "files":  {
+                                      "admin-tools.ps1":  "ec1996f155efd90ee3fca4f4da2b492e437d981b0930c0e1f5feecac301be436",
+                                      "plugin.toml":  "164f1ada8fd21c8256c8281560bd003c96cddfd6b2acea8032455e50fdd1f66c",
+                                      "protocol.ps1":  "e42829110a25f3f4da9bf3109cca0a39b1e3e45e6371d2d63f0ba31cb89abd6c"
+                                  }
+                    },
+                    {
                         "id":  "file-changes",
                         "version":  "0.1.1",
                         "path":  "plugins/file-changes",
@@ -63,6 +73,16 @@
                                   }
                     },
                     {
+                        "id":  "remote-workspaces",
+                        "version":  "0.1.0",
+                        "path":  "plugins/remote-workspaces",
+                        "files":  {
+                                      "plugin.toml":  "a5ad7b2698e228dc9c3faf3b0bb6598d8aae8211c1ae1aedae2aacd3773f6a92",
+                                      "protocol.ps1":  "e42829110a25f3f4da9bf3109cca0a39b1e3e45e6371d2d63f0ba31cb89abd6c",
+                                      "remote-workspaces.ps1":  "90868ac6af669de84541a8981b661f6fd8bf4d10d1a39b7d21a39ccd88b03ca7"
+                                  }
+                    },
+                    {
                         "id":  "teams-meetings",
                         "version":  "0.1.1",
                         "path":  "plugins/teams-meetings",
@@ -104,12 +124,12 @@
                     },
                     {
                         "id":  "web-addresses",
-                        "version":  "0.1.0",
+                        "version":  "0.2.0",
                         "path":  "plugins/web-addresses",
                         "files":  {
-                                      "plugin.toml":  "a93181f46c6143e5d4410a1cd8a47b5b27c37ce235870cbcab4d378df8012233",
+                                      "plugin.toml":  "6b7de18e9b06daa9454553bb6c6f1f73e1270a2780f937b4b82497762c1c23a0",
                                       "protocol.ps1":  "e42829110a25f3f4da9bf3109cca0a39b1e3e45e6371d2d63f0ba31cb89abd6c",
-                                      "web-addresses.ps1":  "cebe308d948b9c935b7b3635d43014bbf4860383b58de77891ee04b71102f253"
+                                      "web-addresses.ps1":  "858ea7c38d4c332f5c52b0749d25e50a8481a94c3fdda0c73de46b8ae3a8f3cd"
                                   }
                     }
                 ]

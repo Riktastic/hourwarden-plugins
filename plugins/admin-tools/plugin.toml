@@ -1,0 +1,25 @@
+id = "admin-tools"
+name = "Servers in admin tools"
+version = "0.1.0"
+author = "Timekeeper"
+category = "Remote access"
+description = "Recognises the server, database or domain you manage from the title of SQL Server Management Studio, WinSCP, FileZilla, Hyper-V and VMware consoles, and Windows management consoles such as Active Directory and DNS. Time there goes to the customer whose server or domain it is."
+api = 1
+platforms = ["windows"]
+permissions = [
+    "Reads the title of the window in front",
+    "Runs a PowerShell script",
+]
+
+[run]
+command = "powershell"
+args = ["-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-File", "admin-tools.ps1"]
+
+[[settings]]
+key = "poll_seconds"
+label = "Check every"
+type = "number"
+description = "How often the window title is checked, in seconds."
+default = 2
+min = 1
+max = 30

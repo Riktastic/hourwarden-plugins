@@ -26,6 +26,18 @@ function Get-WebHost([string]$Address) {
     return ($hostPart.ToLower() -replace '^www\.', '')
 }
 
+# The domains an address says something about: its host (SharePoint admin
+# and OneDrive hosts as the customer's SharePoint host), plus the customer's
+# Microsoft tenant in Azure and Entra portal addresses
+# ("portal.azure.com/#@contoso.onmicrosoft.com/...").
+function Get-WebDomains([string]$Address) {
+    $domainHost = Get-WebHost $Address
+    if (-not $domainHost) { return @() }
+    $out = @($domainHost -replace '^([a-z0-9]+)-(admin|my)\.sharepoint\.com$', '$1.sharepoint.com')
+    if ($Address -match '#@(?<tenant>[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)+)') { $out += $Matches.tenant.ToLower() }
+    return @($out | Select-Object -Unique)
+}
+
 function Test-IgnoredDomain([string]$Domain, $Ignore) {
     foreach ($i in @($Ignore)) {
         $d = ([string]$i).Trim().ToLower().TrimStart('@').TrimStart('.')
@@ -74,11 +86,12 @@ while ($true) {
             if ($null -eq $bar) {
                 Send-Status 'degraded' 'The address bar of this browser could not be found'
             } else {
-                $domain = Get-WebHost (Get-AddressText $bar)
-                if ($domain -and -not (Test-IgnoredDomain $domain (Get-Setting 'ignore_domains' @()))) {
-                    $key = "$($fg.hwnd)|$domain"
+                $ignore = Get-Setting 'ignore_domains' @()
+                $domains = @(Get-WebDomains (Get-AddressText $bar) | Where-Object { -not (Test-IgnoredDomain $_ $ignore) })
+                if ($domains.Count) {
+                    $key = "$($fg.hwnd)|$($domains -join ',')"
                     if ($key -ne $lastKey -or ([DateTime]::UtcNow - $lastSent).TotalSeconds -ge 15) {
-                        Send-Message 'detail' @{ hwnd = $fg.hwnd; exe = $fg.exe; mail_domains = @($domain) }
+                        Send-Message 'detail' @{ hwnd = $fg.hwnd; exe = $fg.exe; mail_domains = $domains }
                         $lastKey = $key
                         $lastSent = [DateTime]::UtcNow
                     }

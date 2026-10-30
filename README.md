@@ -12,8 +12,10 @@ For now the store is this local folder (setting **Plugin store** in Timekeeper; 
 | `office-paths` | Full path of the Word, Excel or PowerPoint document and the Explorer folder in front |
 | `remote-desktop` | Remote Desktop Manager entry, folder and server; Remote Desktop Connection server |
 | `terminal-ssh` | The server of SSH sessions in Windows Terminal, PuTTY and other terminals |
+| `admin-tools` | The server, database or domain in SQL Server Management Studio, WinSCP, FileZilla, Hyper-V and VMware consoles and management consoles (Active Directory, DNS) |
+| `remote-workspaces` | The Citrix, Azure Virtual Desktop, Windows 365 or Horizon workplace you work in |
 | `vscode-git` | The folder and git repository of the VS Code (or Cursor) window in front |
-| `web-addresses` | The domain of the page in front in Edge and Chrome, matched like a mail domain |
+| `web-addresses` | The domain of the page in front in Edge and Chrome, matched like a mail domain; the customer's Microsoft tenant in Azure and Entra portal addresses |
 | `ticket-ids` | Ticket IDs (Jira, TopDesk, ServiceNow) in window titles, offered as the task |
 | `networks` | Wi-Fi network or VPN, as weak evidence for the customer |
 | `file-changes` | Files saved in customer folders |
