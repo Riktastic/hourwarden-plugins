@@ -1,0 +1,32 @@
+id = "file-changes"
+name = "Saved files in customer folders"
+version = "0.1.0"
+author = "Timekeeper"
+category = "Documents"
+description = "Notices files you save, create or rename in customer folders. When the app in front does not show which file you work on, a file just saved in a customer folder decides the customer."
+api = 1
+platforms = ["windows"]
+permissions = [
+    "Watches the customer folders you configured for files being saved (names only, never the content)",
+    "Runs a PowerShell script",
+]
+
+[run]
+command = "powershell"
+args = ["-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-File", "file-changes.ps1"]
+
+[[settings]]
+key = "max_burst"
+label = "Ignore bursts of more than"
+type = "number"
+description = "More changed files than this within five seconds is a sync or a checkout, not you; such bursts are ignored."
+default = 20
+min = 2
+max = 1000
+
+[[settings]]
+key = "ignore_patterns"
+label = "Ignore files matching"
+type = "list"
+description = "File name patterns that are never reported, such as temporary files."
+default = ["~$*", "*.tmp", "*.temp", "*.lock", "*.crdownload", "*.partial"]

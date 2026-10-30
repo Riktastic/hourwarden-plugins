@@ -1,0 +1,66 @@
+{
+    "name":  "Timekeeper plugins",
+    "api":  1,
+    "plugins":  [
+                    {
+                        "id":  "file-changes",
+                        "version":  "0.1.0",
+                        "path":  "plugins/file-changes",
+                        "files":  {
+                                      "file-changes.ps1":  "ab89e2632fae9f3cf2ff2d062ad92fa80a44cfd93cd40c0867adea544bbcfeed",
+                                      "plugin.toml":  "5f472c935915da0ea84d7f88fffeb2db8a558d49946414c0a2600d4be266b316",
+                                      "protocol.ps1":  "327ee50fd630f69ea267c8c7aad2726bbd6d173d3f7c91f6174c35e6c1c6db20"
+                                  }
+                    },
+                    {
+                        "id":  "networks",
+                        "version":  "0.1.0",
+                        "path":  "plugins/networks",
+                        "files":  {
+                                      "networks.ps1":  "4e61a232952538c8d5bd755ca2784b85c8156f452b5c1b6fecd61abad9a10b4b",
+                                      "plugin.toml":  "e10fb25bfcbae0a343c4a363c794db15a37406c8499e94cfd2bc53e67b4938c6",
+                                      "protocol.ps1":  "327ee50fd630f69ea267c8c7aad2726bbd6d173d3f7c91f6174c35e6c1c6db20"
+                                  }
+                    },
+                    {
+                        "id":  "office-paths",
+                        "version":  "0.1.0",
+                        "path":  "plugins/office-paths",
+                        "files":  {
+                                      "office-paths.ps1":  "a85831a9886fe3c78d5ba51e59dc2c4535cf8af8bde43371b7f7a8671e7cbd0c",
+                                      "plugin.toml":  "ad3eb53d25f46479027992c05ce1149992aa6cb2f84dffcf26f35b3515e60583",
+                                      "protocol.ps1":  "327ee50fd630f69ea267c8c7aad2726bbd6d173d3f7c91f6174c35e6c1c6db20"
+                                  }
+                    },
+                    {
+                        "id":  "outlook",
+                        "version":  "0.1.0",
+                        "path":  "plugins/outlook",
+                        "files":  {
+                                      "outlook.ps1":  "6b34930cc5ef6eb13e76eb2a71bbcc0e331f9f3816b8231f3ee650ecde4d3c9d",
+                                      "plugin.toml":  "e36cda14e0c82579096710167198c13fbb00b043591f521a417dfc6c92219797",
+                                      "protocol.ps1":  "327ee50fd630f69ea267c8c7aad2726bbd6d173d3f7c91f6174c35e6c1c6db20"
+                                  }
+                    },
+                    {
+                        "id":  "remote-desktop",
+                        "version":  "0.1.0",
+                        "path":  "plugins/remote-desktop",
+                        "files":  {
+                                      "plugin.toml":  "376aad85dc5fea9baed3b5d32dcc0d1d71529adb8fdc351ea3fc4f0baab4aed3",
+                                      "protocol.ps1":  "327ee50fd630f69ea267c8c7aad2726bbd6d173d3f7c91f6174c35e6c1c6db20",
+                                      "remote-desktop.ps1":  "e5f078a4d2dabbf0ad651848b7d33d2ba5eb2ad73042cafa57ec90b09fa0296c"
+                                  }
+                    },
+                    {
+                        "id":  "teams-meetings",
+                        "version":  "0.1.0",
+                        "path":  "plugins/teams-meetings",
+                        "files":  {
+                                      "plugin.toml":  "bb59d33ad56a345f327ef891bacf458b8d10a9d7b13938dc15eb21bea1821eda",
+                                      "protocol.ps1":  "327ee50fd630f69ea267c8c7aad2726bbd6d173d3f7c91f6174c35e6c1c6db20",
+                                      "teams-meetings.ps1":  "f995653898e5fb251f014ccca89cf5182dea29ec19f0fa27078fe7b04077fc2a"
+                                  }
+                    }
+                ]
+}

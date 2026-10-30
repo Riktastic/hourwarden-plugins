@@ -1,0 +1,26 @@
+id = "office-paths"
+name = "Office and Explorer paths"
+version = "0.1.0"
+author = "Timekeeper"
+category = "Documents"
+description = "Gives the full path of the document open in Word, Excel and PowerPoint, and of the folder open in File Explorer, so customer folders are recognised even when the title only shows the file name."
+api = 1
+platforms = ["windows"]
+permissions = [
+    "Reads the file path of the active Word, Excel and PowerPoint document (never the content)",
+    "Reads the folder shown in File Explorer windows",
+    "Runs a PowerShell script",
+]
+
+[run]
+command = "powershell"
+args = ["-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-File", "office-paths.ps1"]
+
+[[settings]]
+key = "poll_seconds"
+label = "Check every"
+type = "number"
+description = "How often the active document is checked while an Office app or Explorer is in front, in seconds."
+default = 3
+min = 1
+max = 30

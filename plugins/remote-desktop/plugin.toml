@@ -1,0 +1,43 @@
+id = "remote-desktop"
+name = "Remote Desktop Manager and RDP"
+version = "0.1.0"
+author = "Timekeeper"
+category = "Remote work"
+description = "Recognises the Remote Desktop Manager session or Remote Desktop Connection in front: the entry, its folder (such as Contoso\\Production) and the server, so time goes to the customer of that folder or server."
+api = 1
+platforms = ["windows"]
+permissions = [
+    "Reads the name of the selected Remote Desktop Manager tab (UI Automation)",
+    "Reads entry names, folders and hosts through the Devolutions PowerShell module when it is installed",
+    "Reads which server a remote desktop window is connected to",
+    "Runs a PowerShell script",
+]
+
+[run]
+command = "powershell"
+args = ["-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-File", "remote-desktop.ps1"]
+
+[[settings]]
+key = "poll_seconds"
+label = "Check every"
+type = "number"
+description = "How often the active session is checked while a remote desktop app is in front, in seconds."
+default = 3
+min = 1
+max = 30
+
+[[settings]]
+key = "use_rdm_module"
+label = "Use the Devolutions PowerShell module"
+type = "bool"
+description = "Look up folders and hosts of Remote Desktop Manager entries with the Devolutions.PowerShell module, when it is installed."
+default = true
+
+[[settings]]
+key = "refresh_minutes"
+label = "Refresh entries every"
+type = "number"
+description = "How often the list of Remote Desktop Manager entries is read again, in minutes."
+default = 15
+min = 1
+max = 240
