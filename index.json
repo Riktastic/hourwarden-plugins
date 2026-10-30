@@ -34,11 +34,11 @@
                     },
                     {
                         "id":  "outlook",
-                        "version":  "0.1.0",
+                        "version":  "0.2.0",
                         "path":  "plugins/outlook",
                         "files":  {
-                                      "outlook.ps1":  "6b34930cc5ef6eb13e76eb2a71bbcc0e331f9f3816b8231f3ee650ecde4d3c9d",
-                                      "plugin.toml":  "e36cda14e0c82579096710167198c13fbb00b043591f521a417dfc6c92219797",
+                                      "outlook.ps1":  "97b2b5e21bc951315579839a48f55aac30eb1b005bf26fda764c18ce8e119eea",
+                                      "plugin.toml":  "c09d1025ee964fdc5abe6d110843918707ea4be761da2e25d25e5afc2683730c",
                                       "protocol.ps1":  "327ee50fd630f69ea267c8c7aad2726bbd6d173d3f7c91f6174c35e6c1c6db20"
                                   }
                     },

@@ -31,6 +31,7 @@ A plugin must exit when stdin closes, on `shutdown`, or when the process `host_p
 | `meeting` | `active` (bool), `title` | A meeting for a known customer takes the time while it runs, also when you do not type. Repeat `active: true` at least every 20 seconds. |
 | `network` | `name`, `kind` (`wifi`, `wired`, `vpn`) | The current network, used only when nothing else decides. Repeat at least every 3 minutes. |
 | `file_changed` | `path`, `change` | A file saved in a customer folder; supports attribution for one minute. |
+| `metric` | `metric` (a-z and `_`, such as `mail_sent` or `mail_received`), `key` (unique per event), `at` (milliseconds since 1970), `domains` (list) | Counts one event for the customers with those mail domains. The same key counts only once, so it is safe to report an event again after a restart. Shown on the customer page and in reports. |
 | `log` | `message` | Written to the plugin's log. |
 
 How Timekeeper weighs the information: manual switch first, then customer folders, rules, mail domains, names and abbreviations (in titles, paths, Remote Desktop Manager folders and server names), recently saved files, and the network last.

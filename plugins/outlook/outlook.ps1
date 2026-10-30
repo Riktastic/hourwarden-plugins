@@ -1,4 +1,5 @@
-# Outlook (classic): subject and mail domains of the item in front.
+# Outlook (classic): subject and mail domains of the item in front, and
+# counts of mail sent and received per mail domain.
 #
 # Uses the running Outlook through COM. Addresses of Exchange users are
 # resolved to their SMTP address. Only metadata is read, never the body.
@@ -8,6 +9,9 @@
 $olInspector = 35
 $olExchangeUser = 0
 $olExchangeRemoteUser = 5
+$olMail = 43
+$olFolderSentMail = 5
+$olFolderInbox = 6
 
 function Get-Outlook {
     try { return [Runtime.InteropServices.Marshal]::GetActiveObject('Outlook.Application') } catch { return $null }
@@ -37,32 +41,77 @@ function Get-CurrentItem($outlook) {
     return $null
 }
 
-function Get-ItemInfo($item) {
+# Mail domains of the sender (and organiser) and/or the recipients, without
+# your own domains.
+function Get-ItemDomains($item, [bool]$sender, [bool]$recipients) {
     $addresses = New-Object System.Collections.Generic.List[string]
-    $max = [int](Get-Setting 'max_recipients' 30)
-    try {
-        if ($item.SenderEmailType -eq 'EX') { $addresses.Add((Get-Smtp $item.Sender $item.SenderEmailAddress)) }
-        elseif ($item.SenderEmailAddress) { $addresses.Add($item.SenderEmailAddress) }
-    } catch { }
-    try {
-        if ($item.Organizer) { $addresses.Add($item.GetOrganizer().Address) }
-    } catch { }
-    try {
-        $count = [Math]::Min($item.Recipients.Count, $max)
-        for ($i = 1; $i -le $count; $i++) {
-            $r = $item.Recipients.Item($i)
-            $addresses.Add((Get-Smtp $r.AddressEntry $r.Address))
-        }
-    } catch { }
+    if ($sender) {
+        try {
+            if ($item.SenderEmailType -eq 'EX') { $addresses.Add((Get-Smtp $item.Sender $item.SenderEmailAddress)) }
+            elseif ($item.SenderEmailAddress) { $addresses.Add($item.SenderEmailAddress) }
+        } catch { }
+        try {
+            if ($item.Organizer) { $addresses.Add($item.GetOrganizer().Address) }
+        } catch { }
+    }
+    if ($recipients) {
+        $max = [int](Get-Setting 'max_recipients' 30)
+        try {
+            $count = [Math]::Min($item.Recipients.Count, $max)
+            for ($i = 1; $i -le $count; $i++) {
+                $r = $item.Recipients.Item($i)
+                $addresses.Add((Get-Smtp $r.AddressEntry $r.Address))
+            }
+        } catch { }
+    }
     $ignore = @(Get-Setting 'ignore_domains' @()) | ForEach-Object { $_.ToLower().TrimStart('@') }
-    $domains = @($addresses | ForEach-Object { Get-Domain $_ } | Where-Object { $_ -and $ignore -notcontains $_ } | Sort-Object -Unique)
-    return @{ subject = [string]$item.Subject; domains = $domains }
+    return @($addresses | ForEach-Object { Get-Domain $_ } | Where-Object { $_ -and $ignore -notcontains $_ } | Sort-Object -Unique)
+}
+
+# Reports every mail in Sent Items and the Inbox newer than the last check
+# (at the start: the last few days). The host counts each key once.
+$script:countedUntil = @{}
+function Send-MailCounts($outlook) {
+    $ns = $outlook.GetNamespace('MAPI')
+    $start = (Get-Date).AddDays(-[int](Get-Setting 'count_days' 7))
+    $kinds = @(
+        @{ name = 'sent'; folder = $olFolderSentMail; date = 'SentOn'; metric = 'mail_sent'; sender = $false; recipients = $true },
+        @{ name = 'received'; folder = $olFolderInbox; date = 'ReceivedTime'; metric = 'mail_received'; sender = $true; recipients = $false }
+    )
+    $total = 0
+    foreach ($kind in $kinds) {
+        $from = $script:countedUntil[$kind.name]
+        if (-not $from -or $from -lt $start) { $from = $start }
+        $items = $ns.GetDefaultFolder($kind.folder).Items
+        $items.Sort("[$($kind.date)]", $true)
+        $newest = $from
+        $seen = 0
+        $item = $items.GetFirst()
+        while ($item -and $seen -lt 5000) {
+            $seen++
+            $when = $item.($kind.date)
+            if ($when -lt $from) { break }
+            if ($when -gt $newest) { $newest = $when }
+            if ($item.Class -eq $olMail) {
+                $domains = Get-ItemDomains $item $kind.sender $kind.recipients
+                if ($domains.Count -gt 0) {
+                    $at = ([DateTimeOffset]$when).ToUnixTimeMilliseconds()
+                    Send-Message 'metric' @{ metric = $kind.metric; key = "$($kind.name):$($item.EntryID)"; at = $at; domains = $domains }
+                    $total++
+                }
+            }
+            $item = $items.GetNext()
+        }
+        $script:countedUntil[$kind.name] = $newest
+    }
+    return $total
 }
 
 Wait-Initialize
 Send-Status 'running' 'Waiting for Outlook to be in front'
 $lastKey = $null
 $lastSent = [DateTime]::MinValue
+$lastCount = [DateTime]::MinValue
 
 while ($true) {
     [void](Receive-Messages)
@@ -75,7 +124,7 @@ while ($true) {
             } else {
                 $item = Get-CurrentItem $outlook
                 if ($item) {
-                    $info = Get-ItemInfo $item
+                    $info = @{ subject = [string]$item.Subject; domains = (Get-ItemDomains $item $true $true) }
                     $key = "$($fg.hwnd)|$($info.subject)|$($info.domains -join ',')"
                     # Repeated now and then so the host keeps it while you read.
                     if ($key -ne $lastKey -or ([DateTime]::UtcNow - $lastSent).TotalSeconds -ge 15) {
@@ -88,6 +137,18 @@ while ($true) {
             }
         } catch {
             Send-Status 'degraded' "Outlook could not be read: $($_.Exception.Message)"
+        }
+    }
+    if ((Get-Setting 'count_mails' $true) -and ([DateTime]::UtcNow - $lastCount).TotalMinutes -ge [int](Get-Setting 'count_every_minutes' 5)) {
+        $lastCount = [DateTime]::UtcNow
+        $outlook = Get-Outlook
+        if ($outlook) {
+            try {
+                $n = Send-MailCounts $outlook
+                if ($n -gt 0) { Send-Log "Counted $n new mails" }
+            } catch {
+                Send-Log "Mails could not be counted: $($_.Exception.Message)"
+            }
         }
     }
     Wait-ForHost ([int](Get-Setting 'poll_seconds' 3) * 1000)
