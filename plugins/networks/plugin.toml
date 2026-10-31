@@ -1,8 +1,9 @@
 id = "networks"
 name = "Wi-Fi and VPN networks"
-version = "0.1.1"
+version = "0.1.2"
 author = "Timekeeper"
 category = "Location"
+docs = "README.md"
 description = "Reports the Wi-Fi network or VPN you are connected to. Link a customer's office Wi-Fi or VPN to that customer; it is used only when nothing else decides the customer."
 api = 1
 platforms = ["windows"]

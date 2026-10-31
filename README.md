@@ -35,7 +35,7 @@ test/Test-Plugin.ps1    runs a plugin without the app and prints what it sends
 
 ## Changing or adding a plugin
 
-1. Edit or add `plugins/<id>/` and raise `version` in `plugin.toml`.
+1. Edit or add `plugins/<id>/` and raise `version` in `plugin.toml`. Keep its `README.md` (named by `docs` in `plugin.toml`) up to date: the app shows it in its help screen. Start it with a `# Title`; describe what the plugin does, how to set it up, what it reads, and its settings.
 2. Keep the logic in functions and end the setup with `if ($script:testMode) { return }` before `Wait-Initialize`, so tests can load the functions without starting the plugin.
 3. Write or update `test/<id>.tests.ps1` (see `test/TestKit.ps1`) and run all tests:
    `powershell -ExecutionPolicy Bypass -File test\Run-Tests.ps1`
@@ -43,6 +43,6 @@ test/Test-Plugin.ps1    runs a plugin without the app and prints what it sends
 5. Run `powershell -ExecutionPolicy Bypass -File build-index.ps1`. It signs the index with `%USERPROFILE%\.timekeeper\store-signing.key`.
 6. Commit. The store in the app shows an update.
 
-Every plugin needs a test file: `Run-Tests.ps1` fails when one is missing. Keep plugin files ASCII; Windows PowerShell 5.1 reads files without a byte order mark as ANSI.
+Every plugin needs a test file and documentation: `Run-Tests.ps1` fails when either is missing. Keep plugin files ASCII; Windows PowerShell 5.1 reads files without a byte order mark as ANSI.
 
 See [docs/protocol.md](docs/protocol.md) for the messages and the manifest.

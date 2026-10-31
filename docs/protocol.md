@@ -46,6 +46,7 @@ version = "0.1.0"         # raise it for every change; the store offers updates
 author = "You"
 category = "Documents"
 description = "One or two sentences shown in the store."
+docs = "README.md"        # Markdown in the plugin folder, shown in the app's help (required in this store)
 api = 1
 platforms = ["windows"]   # and/or "linux"
 permissions = ["What it reads, in plain words", "Runs a PowerShell script"]

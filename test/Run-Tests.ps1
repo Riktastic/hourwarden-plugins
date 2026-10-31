@@ -27,5 +27,17 @@ foreach ($file in $files) {
 
 $untested = @(Get-ChildItem (Join-Path $root 'plugins') -Directory | Where-Object { -not (Test-Path (Join-Path $PSScriptRoot "$($_.Name).tests.ps1")) })
 if ($Plugin -eq '*' -and $untested.Count) { Write-Host "Plugins without tests: $($untested.Name -join ', ')" -ForegroundColor Yellow; $failed += 'missing tests' }
+
+# Every plugin documents itself: plugin.toml names a Markdown file (shown in
+# the app's help) that exists, starts with a title and is plain ASCII.
+foreach ($dir in Get-ChildItem (Join-Path $root 'plugins') -Directory -Filter $Plugin) {
+    $manifest = Get-Content (Join-Path $dir.FullName 'plugin.toml') -Raw
+    $docs = if ($manifest -match '(?m)^docs\s*=\s*"([^"]+)"') { Join-Path $dir.FullName $Matches[1] } else { $null }
+    $problem = if (-not $docs) { 'no docs in plugin.toml' }
+        elseif (-not (Test-Path $docs)) { "$docs is missing" }
+        elseif ((Get-Content $docs -TotalCount 1) -notmatch '^# \S') { "$docs does not start with a # title" }
+        elseif ([IO.File]::ReadAllBytes($docs) | Where-Object { $_ -gt 127 }) { "$docs is not plain ASCII" }
+    if ($problem) { Write-Host "$($dir.Name): $problem" -ForegroundColor Yellow; $failed += "$($dir.Name) docs" }
+}
 if ($failed.Count) { Write-Host "Failed: $($failed -join ', ')" -ForegroundColor Red; exit 1 }
 Write-Host "All tests passed ($($files.Count) plugins)" -ForegroundColor Green

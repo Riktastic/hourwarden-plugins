@@ -1,8 +1,9 @@
 id = "remote-desktop"
 name = "Remote Desktop Manager and RDP"
-version = "0.1.1"
+version = "0.1.2"
 author = "Timekeeper"
 category = "Remote work"
+docs = "README.md"
 description = "Recognises the Remote Desktop Manager session or Remote Desktop Connection in front: the entry, its folder (such as Contoso\\Production) and the server, so time goes to the customer of that folder or server."
 api = 1
 platforms = ["windows"]

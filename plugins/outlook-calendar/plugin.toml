@@ -1,8 +1,9 @@
 id = "outlook-calendar"
 name = "Outlook calendar"
-version = "0.1.0"
+version = "0.1.1"
 author = "Timekeeper"
 category = "Mail"
+docs = "README.md"
 description = "Reads your Outlook (classic) appointments of the last days, so the daily review can add meetings you attended away from the computer, for the customer of the attendees' mail domains or the customer named in the subject."
 api = 1
 platforms = ["windows"]

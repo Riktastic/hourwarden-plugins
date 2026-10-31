@@ -1,8 +1,9 @@
 id = "office-paths"
 name = "Office and Explorer paths"
-version = "0.1.1"
+version = "0.1.2"
 author = "Timekeeper"
 category = "Documents"
+docs = "README.md"
 description = "Gives the full path of the document open in Word, Excel and PowerPoint, and of the folder open in File Explorer, so customer folders are recognised even when the title only shows the file name."
 api = 1
 platforms = ["windows"]

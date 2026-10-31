@@ -1,8 +1,9 @@
 id = "outlook"
 name = "Outlook mail"
-version = "0.2.1"
+version = "0.2.2"
 author = "Timekeeper"
 category = "Mail"
+docs = "README.md"
 description = "Reads the subject and the sender and recipient domains of the mail or appointment you have open or selected in Outlook (classic), so mail time goes to the customer with that mail domain. Also counts the mails you send to and receive from each customer."
 api = 1
 platforms = ["windows"]
