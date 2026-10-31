@@ -124,12 +124,12 @@
                     },
                     {
                         "id":  "web-addresses",
-                        "version":  "0.2.0",
+                        "version":  "0.3.0",
                         "path":  "plugins/web-addresses",
                         "files":  {
-                                      "plugin.toml":  "6b7de18e9b06daa9454553bb6c6f1f73e1270a2780f937b4b82497762c1c23a0",
+                                      "plugin.toml":  "8cd384bae39da804f5856b082b9f04ca62ea4565be5f97e64e106376861becdd",
                                       "protocol.ps1":  "e42829110a25f3f4da9bf3109cca0a39b1e3e45e6371d2d63f0ba31cb89abd6c",
-                                      "web-addresses.ps1":  "858ea7c38d4c332f5c52b0749d25e50a8481a94c3fdda0c73de46b8ae3a8f3cd"
+                                      "web-addresses.ps1":  "aac60260b3f478d77203f2d10514ebf442673720c8ac43ad317413d6cabeb2bd"
                                   }
                     }
                 ]

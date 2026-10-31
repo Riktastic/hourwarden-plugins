@@ -1,10 +1,10 @@
 # Web addresses: the domain of the page in front in Edge, Chrome, Brave
 # and other Chromium browsers.
 #
-# The address bar is read through UI Automation. Only the domain is sent
-# (portal.contoso.com), never the full address. It is matched like a mail
-# domain: add the customer's web domains (contoso.com, contoso.sharepoint.com)
-# on the customer page under mail domains.
+# The address bar is read through UI Automation. Only the domain
+# (portal.contoso.com) and Microsoft tenant, subscription and workspace IDs
+# are sent, never the full address. They are matched like a mail domain: add
+# them to the customer page under domains and Microsoft IDs.
 
 . "$PSScriptRoot\protocol.ps1"
 
@@ -26,16 +26,58 @@ function Get-WebHost([string]$Address) {
     return ($hostPart.ToLower() -replace '^www\.', '')
 }
 
+$guid = '[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}'
+$script:seenIds = @{}
+
+# Microsoft IDs in an address, as objects with Kind and Id:
+# - tenant: "#@contoso.onmicrosoft.com" or "#@<guid>" in Azure and Entra
+#   portal addresses, "ctid=<guid>" in Power BI and Fabric addresses
+#   (and tenantId= in other Microsoft portals)
+# - subscription: "/subscriptions/<guid>" in Azure portal addresses
+# - workspace: "/groups/<guid>" in Power BI and Fabric addresses
+function Get-MicrosoftIds([string]$Address) {
+    $patterns = @(
+        @('tenant', "#@(?<id>$guid|[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)+)"),
+        @('tenant', "(?i)[?&#](ctid|tid|tenantId|tenant)=(?<id>$guid)"),
+        @('subscription', "(?i)/subscriptions/(?<id>$guid)")
+    )
+    if ((Get-WebHost $Address) -match '(^|\.)(powerbi\.com|fabric\.microsoft\.com)$') {
+        $patterns += , @('workspace', "(?i)/groups/(?<id>$guid)")
+    }
+    $out = @()
+    $seen = @{}
+    foreach ($p in $patterns) {
+        foreach ($m in [regex]::Matches($Address, $p[1])) {
+            $id = $m.Groups['id'].Value.ToLower()
+            if ($seen.ContainsKey($id)) { continue }
+            $seen[$id] = $true
+            $out += [pscustomobject]@{ Kind = $p[0]; Id = $id }
+        }
+    }
+    return $out
+}
+
 # The domains an address says something about: its host (SharePoint admin
-# and OneDrive hosts as the customer's SharePoint host), plus the customer's
-# Microsoft tenant in Azure and Entra portal addresses
-# ("portal.azure.com/#@contoso.onmicrosoft.com/...").
+# and OneDrive hosts as the customer's SharePoint host), plus the Microsoft
+# tenant, subscription and workspace IDs in it (see Get-MicrosoftIds).
 function Get-WebDomains([string]$Address) {
     $domainHost = Get-WebHost $Address
     if (-not $domainHost) { return @() }
     $out = @($domainHost -replace '^([a-z0-9]+)-(admin|my)\.sharepoint\.com$', '$1.sharepoint.com')
-    if ($Address -match '#@(?<tenant>[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)+)') { $out += $Matches.tenant.ToLower() }
+    $out += @(Get-MicrosoftIds $Address | ForEach-Object { $_.Id })
     return @($out | Select-Object -Unique)
+}
+
+# Logs each Microsoft ID the first time it is seen, so it can be copied to
+# the right customer page.
+function Write-NewIds([string]$Address) {
+    $domainHost = Get-WebHost $Address
+    foreach ($i in @(Get-MicrosoftIds $Address)) {
+        if ($script:seenIds.ContainsKey($i.Id)) { continue }
+        if ($script:seenIds.Count -gt 500) { $script:seenIds.Clear() }
+        $script:seenIds[$i.Id] = $true
+        Send-Log "Seen $($i.Kind) $($i.Id) on $domainHost"
+    }
 }
 
 function Test-IgnoredDomain([string]$Domain, $Ignore) {
@@ -87,7 +129,9 @@ while ($true) {
                 Send-Status 'degraded' 'The address bar of this browser could not be found'
             } else {
                 $ignore = Get-Setting 'ignore_domains' @()
-                $domains = @(Get-WebDomains (Get-AddressText $bar) | Where-Object { -not (Test-IgnoredDomain $_ $ignore) })
+                $address = Get-AddressText $bar
+                Write-NewIds $address
+                $domains = @(Get-WebDomains $address | Where-Object { -not (Test-IgnoredDomain $_ $ignore) })
                 if ($domains.Count) {
                     $key = "$($fg.hwnd)|$($domains -join ',')"
                     if ($key -ne $lastKey -or ([DateTime]::UtcNow - $lastSent).TotalSeconds -ge 15) {

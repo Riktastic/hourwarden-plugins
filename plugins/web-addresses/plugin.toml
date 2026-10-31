@@ -1,13 +1,13 @@
 id = "web-addresses"
 name = "Web addresses in the browser"
-version = "0.2.0"
+version = "0.3.0"
 author = "Timekeeper"
 category = "Browser"
-description = "Reads the domain of the page in front in Edge, Chrome, Brave and other Chromium browsers, such as portal.contoso.com. It counts like a mail domain: add a customer's web domains (contoso.com, contoso.sharepoint.com) under mail domains on the customer page. Azure and Entra portal addresses also give the customer's tenant (contoso.onmicrosoft.com), and SharePoint admin and OneDrive addresses count as the customer's SharePoint. Useful when you use one browser profile for several customers."
+description = "Reads the domain of the page in front in Edge, Chrome, Brave and other Chromium browsers, such as portal.contoso.com. It counts like a mail domain: add a customer's web domains (contoso.com, contoso.sharepoint.com) on the customer page. Azure portal, Entra, Power BI and Fabric addresses also give the customer's Microsoft tenant (contoso.onmicrosoft.com or its tenant ID), Azure subscription IDs and Power BI or Fabric workspace IDs; add these to the customer page too. Each ID is listed in this plugin's log the first time it is seen. SharePoint admin and OneDrive addresses count as the customer's SharePoint. Useful when you use one browser profile for several customers."
 api = 1
 platforms = ["windows"]
 permissions = [
-    "Reads the address bar of the browser window in front (only the domain is used)",
+    "Reads the address bar of the browser window in front (only the domain and Microsoft tenant, subscription and workspace IDs are used)",
     "Uses Windows UI Automation",
     "Runs a PowerShell script",
 ]
