@@ -1,12 +1,12 @@
 id = "file-changes"
 name = "Saved files in customer folders"
-version = "0.1.2"
+version = "0.2.0"
 author = "Timekeeper"
 category = "Documents"
 docs = "README.md"
 description = "Notices files you save, create or rename in customer folders. When the app in front does not show which file you work on, a file just saved in a customer folder decides the customer."
 api = 1
-platforms = ["windows"]
+platforms = ["windows", "linux"]
 permissions = [
     "Watches the customer folders you configured for files being saved (names only, never the content)",
     "Runs a PowerShell script",

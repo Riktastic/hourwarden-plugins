@@ -1,12 +1,12 @@
 id = "networks"
 name = "Wi-Fi and VPN networks"
-version = "0.1.2"
+version = "0.2.0"
 author = "Timekeeper"
 category = "Location"
 docs = "README.md"
 description = "Reports the Wi-Fi network or VPN you are connected to. Link a customer's office Wi-Fi or VPN to that customer; it is used only when nothing else decides the customer."
 api = 1
-platforms = ["windows"]
+platforms = ["windows", "linux"]
 permissions = [
     "Reads the names of connected networks and VPN connections",
     "Runs a PowerShell script",

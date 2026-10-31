@@ -1,6 +1,6 @@
 id = "remote-desktop"
 name = "Remote Desktop Manager and RDP"
-version = "0.1.2"
+version = "0.1.3"
 author = "Timekeeper"
 category = "Remote work"
 docs = "README.md"

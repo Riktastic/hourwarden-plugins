@@ -4,7 +4,7 @@
 # Uses the running Outlook through COM. Addresses of Exchange users are
 # resolved to their SMTP address. Only metadata is read, never the body.
 
-. "$PSScriptRoot\protocol.ps1"
+. "$PSScriptRoot/protocol.ps1"
 
 $olInspector = 35
 $olExchangeUser = 0

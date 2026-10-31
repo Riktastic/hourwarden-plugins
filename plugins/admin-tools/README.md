@@ -1,5 +1,7 @@
 # Servers in admin tools
 
+**Works on:** Windows and Linux. On Linux it reads FileZilla and VMware Remote Console; the other tools are Windows programs. On Linux, plugins need PowerShell 7 (`pwsh`).
+
 Recognises the server, database or domain you manage from the title of SQL Server Management Studio, WinSCP, FileZilla, Hyper-V and VMware consoles, and Windows management consoles such as Active Directory and DNS. Time there goes to the customer whose server or domain it is.
 
 ## What it does

@@ -1,4 +1,4 @@
-. "$PSScriptRoot\TestKit.ps1"
+. "$PSScriptRoot/TestKit.ps1"
 . (Use-Plugin 'terminal-ssh')
 
 $local = @('LAPTOP-RIK')
@@ -27,6 +27,19 @@ Test 'your own machine and local shells are not servers' {
     Assert-Equal $null (Get-SshHost 'Windows PowerShell' $local)
     Assert-Equal $null (Get-SshHost 'Administrator: Command Prompt' $local)
     Assert-Equal $null (Get-SshHost 'C:\WINDOWS\system32\cmd.exe' $local)
+}
+
+Test 'Linux terminals' {
+    Assert-Equal 'web01' (Get-SshHost "rik@web01: ~ $([char]0x2014) Konsole" $local)
+    Assert-Equal 'db01.contoso.local' (Get-SshHost 'ssh admin@db01.contoso.local - Terminal' $local)
+    Assert-Equal $null (Get-SshHost "rik@fedora: ~/Projects $([char]0x2014) Konsole" @('fedora'))
+    Assert-True (Test-App 'konsole' $defaultApps)
+    Assert-True (Test-App 'gnome-terminal-server' $defaultApps)
+}
+
+Test 'this computer is never a server' {
+    $me = [Environment]::MachineName
+    Assert-Equal $null (Get-SshHost "rik@$($me): ~")
 }
 
 Complete-Tests

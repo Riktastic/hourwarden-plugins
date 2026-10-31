@@ -5,7 +5,7 @@
 # module, the server comes from the RDP connection the process holds open.
 # Remote Desktop Connection (mstsc): the server is the first part of the title.
 
-. "$PSScriptRoot\protocol.ps1"
+. "$PSScriptRoot/protocol.ps1"
 
 Add-Type -AssemblyName UIAutomationClient, UIAutomationTypes
 

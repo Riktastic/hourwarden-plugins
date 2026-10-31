@@ -4,7 +4,7 @@
 # ActivePresentation); File Explorer through Shell.Application windows.
 # Files in OneDrive or SharePoint give their web address.
 
-. "$PSScriptRoot\protocol.ps1"
+. "$PSScriptRoot/protocol.ps1"
 
 $apps = @{
     'winword.exe'  = @{ progId = 'Word.Application'; get = { param($a) $a.ActiveDocument.FullName } }

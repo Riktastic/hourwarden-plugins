@@ -1,5 +1,7 @@
 # Outlook calendar
 
+**Works on:** Windows only: it reads the calendar of classic Outlook through COM, which only exists on Windows.
+
 Reads your Outlook (classic) appointments of the last days, so the daily review can add meetings you attended away from the computer, for the customer of the attendees' mail domains or the customer named in the subject.
 
 ## What it does

@@ -5,10 +5,12 @@
 # others show the host. The server is matched like a remote desktop server:
 # add a remote server rule or a customer alias that appears in its name.
 
-. "$PSScriptRoot\protocol.ps1"
+. "$PSScriptRoot/protocol.ps1"
 
+# Names with or without .exe. The second line holds Linux terminals.
 $defaultApps = @('windowsterminal.exe', 'openconsole.exe', 'conhost.exe', 'putty.exe', 'kitty.exe', 'mobaxterm.exe', 'mremoteng.exe',
-    'securecrt.exe', 'tabby.exe', 'termius.exe', 'wezterm-gui.exe', 'alacritty.exe', 'royalts.exe')
+    'securecrt.exe', 'tabby.exe', 'termius.exe', 'wezterm-gui.exe', 'alacritty.exe', 'royalts.exe',
+    'konsole', 'yakuake', 'gnome-terminal-server', 'kgx', 'ptyxis', 'tilix', 'terminator', 'xfce4-terminal', 'xterm', 'foot', 'ghostty')
 # ssh options that take a value: their value is not the host.
 $optionsWithValue = @('-b', '-c', '-D', '-E', '-e', '-F', '-I', '-i', '-J', '-L', '-l', '-m', '-O', '-o', '-p', '-Q', '-R', '-S', '-W', '-w')
 $hostPattern = '^[A-Za-z0-9]([A-Za-z0-9.-]*[A-Za-z0-9])?$'
@@ -21,9 +23,9 @@ function Test-RemoteHost([string]$Name, [string[]]$LocalNames) {
 }
 
 # The server in a terminal title, or $null.
-function Get-SshHost([string]$Title, [string[]]$LocalNames = @($env:COMPUTERNAME)) {
+function Get-SshHost([string]$Title, [string[]]$LocalNames = @([Environment]::MachineName)) {
     if (-not $Title) { return $null }
-    $t = ($Title -replace '\s+[-|]\s+(PuTTY|KiTTY|SecureCRT|Tabby|Termius|MobaXterm|mRemoteNG)\b.*$', '').Trim()
+    $t = ($Title -replace '\s+[-|\u2014]\s+(PuTTY|KiTTY|SecureCRT|Tabby|Termius|MobaXterm|mRemoteNG|Konsole|Yakuake|Tilix|Terminator|Terminal)\b.*$', '').Trim()
     $t = $t -replace '^(Administrator|Administrateur|Beheerder):\s*', ''
 
     # "ssh -p 2222 -i key admin@web01 uptime" or "ssh://admin@web01:22"
@@ -59,8 +61,8 @@ while ($true) {
     [void](Receive-Messages)
     $fg = $script:foreground
     $apps = @(Get-Setting 'apps' $defaultApps | ForEach-Object { $_.ToLower() })
-    if ($fg -and $apps -contains $fg.exe) {
-        $local = @($env:COMPUTERNAME) + @(Get-Setting 'local_hosts' @())
+    if ($fg -and (Test-App $fg.exe $apps)) {
+        $local = @([Environment]::MachineName) + @(Get-Setting 'local_hosts' @())
         $server = Get-SshHost $fg.title $local
         if ($server) {
             $key = "$($fg.hwnd)|$server"

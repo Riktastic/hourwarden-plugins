@@ -1,4 +1,4 @@
-. "$PSScriptRoot\TestKit.ps1"
+. "$PSScriptRoot/TestKit.ps1"
 . (Use-Plugin 'admin-tools')
 
 Test 'SQL Server Management Studio: server and database' {
@@ -27,6 +27,10 @@ Test 'management consoles give the domain or server' {
 
 Test 'other programs are left alone' {
     Assert-Equal $null (Get-AdminTarget 'notepad.exe' 'sql01.contoso.local.txt - Notepad')
+}
+
+Test 'FileZilla on Linux' {
+    Assert-Equal @{ remote_server = 'ftp.contoso.nl' } (Get-AdminTarget 'filezilla' 'Contoso site - sftp://deploy@ftp.contoso.nl - FileZilla')
 }
 
 Complete-Tests

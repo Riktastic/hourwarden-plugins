@@ -1,5 +1,7 @@
 # Web addresses in the browser
 
+**Works on:** Windows only: it reads the address bar through Windows UI Automation. Linux has no equivalent that works for every browser.
+
 Reads the domain of the page in front in Edge, Chrome, Brave and other Chromium browsers, such as portal.contoso.com. It counts like a mail domain: add a customer's web domains (contoso.com, contoso.sharepoint.com) on the customer page. Azure portal, Entra, Power BI and Fabric addresses also give the customer's Microsoft tenant (contoso.onmicrosoft.com or its tenant ID), Azure subscription IDs and Power BI or Fabric workspace IDs; add these to the customer page too. Each ID is listed in this plugin's log the first time it is seen. SharePoint admin and OneDrive addresses count as the customer's SharePoint. Useful when you use one browser profile for several customers.
 
 ## What it does

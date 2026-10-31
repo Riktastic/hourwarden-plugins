@@ -1,4 +1,4 @@
-. "$PSScriptRoot\TestKit.ps1"
+. "$PSScriptRoot/TestKit.ps1"
 . (Use-Plugin 'outlook-calendar')
 
 # A stand-in for an Outlook appointment.

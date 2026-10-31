@@ -1,4 +1,4 @@
-. "$PSScriptRoot\TestKit.ps1"
+. "$PSScriptRoot/TestKit.ps1"
 . (Use-Plugin 'outlook')
 
 # A stand-in for an Outlook mail item: sender and recipients with plain

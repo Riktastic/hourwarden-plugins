@@ -1,5 +1,7 @@
 # Office and Explorer paths
 
+**Works on:** Windows only: it asks Word, Excel, PowerPoint and Explorer through COM, which only exists on Windows.
+
 Gives the full path of the document open in Word, Excel and PowerPoint, and of the folder open in File Explorer, so customer folders are recognised even when the title only shows the file name.
 
 ## What it does

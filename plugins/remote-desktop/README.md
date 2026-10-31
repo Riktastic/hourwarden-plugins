@@ -1,5 +1,7 @@
 # Remote Desktop Manager and RDP
 
+**Works on:** Windows only: it reads Remote Desktop Manager and Remote Desktop Connection on Windows.
+
 Recognises the Remote Desktop Manager session or Remote Desktop Connection in front: the entry, its folder (such as Contoso\Production) and the server, so time goes to the customer of that folder or server.
 
 ## What it does

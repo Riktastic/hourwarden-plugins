@@ -1,5 +1,7 @@
 # Outlook mail
 
+**Works on:** Windows only: it reads classic Outlook through COM, which only exists on Windows. On Linux, use Outlook on the web: the web addresses and ticket IDs plugins do not need Outlook.
+
 Reads the subject and the sender and recipient domains of the mail or appointment you have open or selected in Outlook (classic), so mail time goes to the customer with that mail domain. Also counts the mails you send to and receive from each customer.
 
 ## What it does

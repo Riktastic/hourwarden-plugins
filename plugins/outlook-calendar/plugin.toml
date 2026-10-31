@@ -1,6 +1,6 @@
 id = "outlook-calendar"
 name = "Outlook calendar"
-version = "0.1.1"
+version = "0.1.2"
 author = "Timekeeper"
 category = "Mail"
 docs = "README.md"

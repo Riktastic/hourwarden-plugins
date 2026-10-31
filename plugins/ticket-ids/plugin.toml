@@ -1,12 +1,12 @@
 id = "ticket-ids"
 name = "Ticket IDs from window titles"
-version = "0.1.1"
+version = "0.2.0"
 author = "Timekeeper"
 category = "Tickets"
 docs = "README.md"
 description = "Spots ticket numbers such as CON-123 (Jira), I 2410 123 (TopDesk) or INC0012345 (ServiceNow) in the title of your browser, Outlook or Teams, and offers them in the top bar as the task. It never changes the customer and does not connect to Jira or TopDesk."
 api = 1
-platforms = ["windows"]
+platforms = ["windows", "linux"]
 permissions = [
     "Reads the title of the window in front, for the applications you choose",
     "Runs a PowerShell script",
@@ -21,7 +21,7 @@ key = "apps"
 label = "Applications"
 type = "list"
 description = "Programs whose window titles are read."
-default = ["msedge.exe", "chrome.exe", "firefox.exe", "brave.exe", "outlook.exe", "olk.exe", "ms-teams.exe"]
+default = ["msedge.exe", "chrome.exe", "firefox.exe", "brave.exe", "outlook.exe", "olk.exe", "ms-teams.exe", "chromium", "teams-for-linux"]
 
 [[settings]]
 key = "patterns"

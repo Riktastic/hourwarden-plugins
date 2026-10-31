@@ -6,7 +6,7 @@
 # are sent, never the full address. They are matched like a mail domain: add
 # them to the customer page under domains and Microsoft IDs.
 
-. "$PSScriptRoot\protocol.ps1"
+. "$PSScriptRoot/protocol.ps1"
 
 Add-Type -AssemblyName UIAutomationClient, UIAutomationTypes
 

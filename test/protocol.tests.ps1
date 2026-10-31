@@ -1,5 +1,5 @@
 # Unit tests of the protocol helpers every plugin shares (shared/protocol.ps1).
-. "$PSScriptRoot\TestKit.ps1"
+. "$PSScriptRoot/TestKit.ps1"
 . (Join-Path (Split-Path $PSScriptRoot -Parent) 'shared\protocol.ps1')
 
 # Feeds lines to Receive-Messages as if the host wrote them; after the last
@@ -70,6 +70,15 @@ Test 'initialize is waited for' {
     Use-HostLines @((@{ method = 'initialize'; params = @{ host_pid = $PID; settings = @{}; customer_folders = @() } } | ConvertTo-Json -Compress -Depth 4))
     Wait-Initialize
     Assert-Equal $PID $script:hostPid
+}
+
+Test 'program names match with or without .exe' {
+    Assert-Equal 'code' (Get-AppName 'Code.exe')
+    Assert-Equal 'konsole' (Get-AppName 'konsole')
+    Assert-True (Test-App 'firefox' @('msedge.exe', 'firefox.exe')) 'Linux name against a Windows name'
+    Assert-True (Test-App 'MSEDGE.EXE' @('msedge')) 'Windows name against a Linux name'
+    Assert-True (-not (Test-App 'notepad.exe' @('code.exe', 'konsole')))
+    Assert-True (-not (Test-App '' @('code.exe')))
 }
 
 Complete-Tests

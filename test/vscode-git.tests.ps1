@@ -1,4 +1,4 @@
-. "$PSScriptRoot\TestKit.ps1"
+. "$PSScriptRoot/TestKit.ps1"
 . (Use-Plugin 'vscode-git')
 
 $dot = [char]0x25CF
@@ -7,6 +7,7 @@ Test 'file URIs become folders' {
     Assert-Equal 'd:\Projects\Timekeeper' (ConvertFrom-FileUri 'file:///d%3A/Projects/Timekeeper')
     Assert-Equal 'C:\Klanten\Contoso Portal' (ConvertFrom-FileUri 'file:///C:/Klanten/Contoso%20Portal/')
     Assert-Equal $null (ConvertFrom-FileUri 'vscode-remote://ssh-remote%2Bweb01/srv/app')
+    Assert-Equal '/home/rik/Klanten/Contoso Portal' (ConvertFrom-FileUri 'file:///home/rik/Klanten/Contoso%20Portal/')
 }
 
 Test 'workspace name from the title' {
@@ -34,21 +35,31 @@ Test 'repository from git remotes' {
 }
 
 Test 'workspace folders from VS Code storage, newest wins' {
-    $storage = Join-Path $env:TEMP "tk-vscode-$PID"
-    foreach ($n in 'a', 'b') { New-Item -ItemType Directory -Force (Join-Path $storage $n) | Out-Null }
-    Set-Content (Join-Path $storage 'a\workspace.json') '{"folder":"file:///d%3A/Old/portal"}'
-    Set-Content (Join-Path $storage 'b\workspace.json') '{"folder":"file:///d%3A/Klanten/Contoso/portal"}'
-    (Get-Item (Join-Path $storage 'a\workspace.json')).LastWriteTime = (Get-Date).AddDays(-3)
+    $storage = New-TestFolder 'tk-vscode'
+    foreach ($n in 'a', 'b', 'c') { New-Item -ItemType Directory -Force (Join-Path $storage $n) | Out-Null }
+    Set-Content (Join-Path $storage 'a/workspace.json') '{"folder":"file:///d%3A/Old/portal"}'
+    Set-Content (Join-Path $storage 'b/workspace.json') '{"folder":"file:///d%3A/Klanten/Contoso/portal"}'
+    Set-Content (Join-Path $storage 'c/workspace.json') '{"folder":"file:///home/rik/infra"}'
+    (Get-Item (Join-Path $storage 'a/workspace.json')).LastWriteTime = (Get-Date).AddDays(-3)
     $map = Get-WorkspaceFolders @($storage, (Join-Path $storage 'missing'))
     Assert-Equal 'd:\Klanten\Contoso\portal' $map['portal']
+    Assert-Equal '/home/rik/infra' $map['infra']
     Remove-Item -Recurse -Force $storage
 }
 
 Test 'repository root is found from a subfolder' {
-    $repo = Join-Path $env:TEMP "tk-repo-$PID"
-    New-Item -ItemType Directory -Force (Join-Path $repo '.git'), (Join-Path $repo 'src\app') | Out-Null
-    Assert-Equal $repo (Get-RepositoryRoot (Join-Path $repo 'src\app'))
+    $repo = New-TestFolder 'tk-repo'
+    $app = Join-Path (Join-Path $repo 'src') 'app'
+    New-Item -ItemType Directory -Force (Join-Path $repo '.git'), $app | Out-Null
+    Assert-Equal $repo (Get-RepositoryRoot $app)
     Remove-Item -Recurse -Force $repo
+}
+
+Test 'VS Code and its forks on Linux' {
+    Assert-True ($editors.Contains((Get-AppName 'code')))
+    Assert-True ($editors.Contains((Get-AppName 'Code.exe')))
+    Assert-Equal 'VSCodium' $editors[(Get-AppName 'codium')]
+    Assert-Equal 'Code - Insiders' $editors[(Get-AppName 'code-insiders')]
 }
 
 Complete-Tests

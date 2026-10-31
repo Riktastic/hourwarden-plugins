@@ -1,6 +1,6 @@
 id = "outlook"
 name = "Outlook mail"
-version = "0.2.2"
+version = "0.2.3"
 author = "Timekeeper"
 category = "Mail"
 docs = "README.md"

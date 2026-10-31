@@ -6,25 +6,37 @@
 # .git/config gives the repository ("contoso/portal"). The folder is
 # matched like a customer folder, the repository like a customer name.
 
-. "$PSScriptRoot\protocol.ps1"
+. "$PSScriptRoot/protocol.ps1"
 
+# Program (without .exe; Windows and Linux names) -> settings folder name.
 $editors = [ordered]@{
-    'code.exe'            = 'Code'
-    'code - insiders.exe' = 'Code - Insiders'
-    'cursor.exe'          = 'Cursor'
-    'windsurf.exe'        = 'Windsurf'
-    'vscodium.exe'        = 'VSCodium'
+    'code'            = 'Code'
+    'code - insiders' = 'Code - Insiders'
+    'code-insiders'   = 'Code - Insiders'
+    'cursor'          = 'Cursor'
+    'windsurf'        = 'Windsurf'
+    'vscodium'        = 'VSCodium'
+    'codium'          = 'VSCodium'
 }
 $appNames = 'Visual Studio Code - Insiders|Visual Studio Code|Cursor|Windsurf|VSCodium'
 $script:workspaces = @{}
 $script:workspacesAt = [DateTime]::MinValue
 
-# "file:///d%3A/Projects/Timekeeper" -> "d:\Projects\Timekeeper"; remote
-# workspaces (vscode-remote://) have no local folder.
+# "file:///d%3A/Projects/Timekeeper" -> "d:\Projects\Timekeeper",
+# "file:///home/rik/portal" -> "/home/rik/portal"; remote workspaces
+# (vscode-remote://) have no local folder.
 function ConvertFrom-FileUri([string]$Uri) {
     if (-not $Uri -or -not $Uri.StartsWith('file:///')) { return $null }
-    $path = [Uri]::UnescapeDataString($Uri.Substring(8)).Replace('/', '\')
-    return $path.TrimEnd('\')
+    $path = [Uri]::UnescapeDataString($Uri.Substring(8))
+    if ($path -match '^[A-Za-z]:') { return $path.Replace('/', '\').TrimEnd('\') }
+    return '/' + $path.Trim('/')
+}
+
+# Where VS Code keeps its settings: %APPDATA% on Windows, ~/.config on Linux.
+function Get-ConfigRoot {
+    if ($env:APPDATA) { return $env:APPDATA }
+    if ($env:XDG_CONFIG_HOME) { return $env:XDG_CONFIG_HOME }
+    return Join-Path $HOME '.config'
 }
 
 # Workspace name -> folder, from VS Code's workspaceStorage; the most
@@ -86,10 +98,10 @@ $lastSent = [DateTime]::MinValue
 while ($true) {
     [void](Receive-Messages)
     $fg = $script:foreground
-    if ($fg -and $editors.Contains($fg.exe)) {
+    if ($fg -and $editors.Contains((Get-AppName $fg.exe))) {
         try {
             if (([DateTime]::UtcNow - $script:workspacesAt).TotalMinutes -ge 5) {
-                $dirs = @($editors.Values | ForEach-Object { Join-Path $env:APPDATA "$_\User\workspaceStorage" })
+                $dirs = @($editors.Values | Select-Object -Unique | ForEach-Object { Join-Path (Get-ConfigRoot) "$_/User/workspaceStorage" })
                 $script:workspaces = Get-WorkspaceFolders $dirs
                 $script:workspacesAt = [DateTime]::UtcNow
             }
@@ -99,7 +111,8 @@ while ($true) {
                 $repo = $null
                 if ($folder) {
                     $root = Get-RepositoryRoot $folder
-                    if ($root -and (Test-Path -LiteralPath (Join-Path $root '.git\config'))) { $repo = Get-GitRemote (Get-Content -LiteralPath (Join-Path $root '.git\config') -Raw) }
+                    $config = if ($root) { Join-Path (Join-Path $root '.git') 'config' }
+                    if ($config -and (Test-Path -LiteralPath $config)) { $repo = Get-GitRemote (Get-Content -LiteralPath $config -Raw) }
                 }
                 $detail = @{ hwnd = $fg.hwnd; exe = $fg.exe }
                 if ($folder) { $detail.path = $folder }

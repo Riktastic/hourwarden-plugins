@@ -6,21 +6,23 @@ Timekeeper reads plugin repositories from GitHub (`https://github.com/Riktastic/
 
 To publish your own repository, copy this layout, run `build-index.ps1` with your own signing key, and push it to GitHub.
 
-| Plugin | What it adds |
-|---|---|
-| `teams-meetings` | Teams calls and meetings, also in the background; the meeting title decides the customer |
-| `outlook` | Subject and mail domains of the selected or open Outlook item; mail sent and received per customer |
-| `outlook-calendar` | Your appointments, which the daily review offers as time for the customer of the attendees or subject |
-| `office-paths` | Full path of the Word, Excel or PowerPoint document and the Explorer folder in front |
-| `remote-desktop` | Remote Desktop Manager entry, folder and server; Remote Desktop Connection server |
-| `terminal-ssh` | The server of SSH sessions in Windows Terminal, PuTTY and other terminals |
-| `admin-tools` | The server, database or domain in SQL Server Management Studio, WinSCP, FileZilla, Hyper-V and VMware consoles and management consoles (Active Directory, DNS) |
-| `remote-workspaces` | The Citrix, Azure Virtual Desktop, Windows 365 or Horizon workplace you work in |
-| `vscode-git` | The folder and git repository of the VS Code (or Cursor) window in front |
-| `web-addresses` | The domain of the page in front in Edge and Chrome, matched like a mail domain; the customer's Microsoft tenant, Azure subscription and Power BI or Fabric workspace in Azure portal, Entra, Power BI and Fabric addresses |
-| `ticket-ids` | Ticket IDs (Jira, TopDesk, ServiceNow) in window titles, offered as the task |
-| `networks` | Wi-Fi network or VPN, as weak evidence for the customer |
-| `file-changes` | Files saved in customer folders |
+| Plugin | What it adds | Works on |
+|---|---|---|
+| `teams-meetings` | Teams calls and meetings, also in the background; the meeting title decides the customer | Windows only |
+| `outlook` | Subject and mail domains of the selected or open Outlook item; mail sent and received per customer | Windows only |
+| `outlook-calendar` | Your appointments, which the daily review offers as time for the customer of the attendees or subject | Windows only |
+| `office-paths` | Full path of the Word, Excel or PowerPoint document and the Explorer folder in front | Windows only |
+| `remote-desktop` | Remote Desktop Manager entry, folder and server; Remote Desktop Connection server | Windows only |
+| `terminal-ssh` | The server of SSH sessions in Windows Terminal, PuTTY, Konsole, GNOME Terminal and other terminals | Windows and Linux |
+| `admin-tools` | The server, database or domain in SQL Server Management Studio, WinSCP, FileZilla, Hyper-V and VMware consoles and management consoles (Active Directory, DNS) | Windows and Linux |
+| `remote-workspaces` | The Citrix, Azure Virtual Desktop, Windows 365 or Horizon workplace you work in | Windows and Linux |
+| `vscode-git` | The folder and git repository of the VS Code (or Cursor) window in front | Windows and Linux |
+| `web-addresses` | The domain of the page in front in Edge and Chrome, matched like a mail domain; the customer's Microsoft tenant, Azure subscription and Power BI or Fabric workspace in Azure portal, Entra, Power BI and Fabric addresses | Windows only |
+| `ticket-ids` | Ticket IDs (Jira, TopDesk, ServiceNow) in window titles, offered as the task | Windows and Linux |
+| `networks` | Wi-Fi network or VPN, as weak evidence for the customer | Windows and Linux |
+| `file-changes` | Files saved in customer folders | Windows and Linux |
+
+On Linux, plugins run in PowerShell 7 (`pwsh`), which has to be installed. Plugins that use Outlook, Office or Windows UI Automation through COM, or the Windows registry, are Windows only: `platforms` in their `plugin.toml` says so, Timekeeper shows "Windows only" in the store, and their documentation starts with a **Works on** line. `Run-Tests.ps1` checks that the two agree.
 
 ## Layout
 

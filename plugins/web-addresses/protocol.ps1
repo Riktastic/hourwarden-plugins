@@ -82,6 +82,24 @@ function Get-Setting([string]$Key, $Default) {
     return $Default
 }
 
+# True on Windows. Windows PowerShell 5.1 has no $IsWindows, so this reads
+# the OS environment variable that Windows always sets.
+$script:onWindows = $env:OS -eq 'Windows_NT'
+
+# A program name in lower case without ".exe": "Code.exe" on Windows and
+# "code" on Linux are the same program.
+function Get-AppName([string]$Exe) {
+    return ($Exe.Trim().ToLower() -replace '\.exe$', '')
+}
+
+# Whether a program is one of the names in a list, with or without ".exe".
+function Test-App([string]$Exe, $Names) {
+    if (-not $Exe) { return $false }
+    $name = Get-AppName $Exe
+    foreach ($n in @($Names)) { if ($n -and (Get-AppName ([string]$n)) -eq $name) { return $true } }
+    return $false
+}
+
 # Waits for the initialize message before the plugin starts working.
 function Wait-Initialize {
     $deadline = [DateTime]::UtcNow.AddSeconds(30)

@@ -1,6 +1,6 @@
 id = "web-addresses"
 name = "Web addresses in the browser"
-version = "0.3.1"
+version = "0.3.2"
 author = "Timekeeper"
 category = "Browser"
 docs = "README.md"

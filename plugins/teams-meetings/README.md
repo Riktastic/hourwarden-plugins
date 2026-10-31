@@ -1,5 +1,7 @@
 # Teams meetings
 
+**Works on:** Windows only: it reads microphone use from the Windows registry and the Teams desktop app, which does not exist on Linux.
+
 Notices Teams calls and meetings, also when Teams is in the background, and gives the meeting time to the customer named in the meeting title.
 
 ## What it does

@@ -1,24 +1,30 @@
-. "$PSScriptRoot\TestKit.ps1"
+. "$PSScriptRoot/TestKit.ps1"
 . (Use-Plugin 'file-changes')
 
-$folder = Join-Path $env:TEMP "tk-file-changes-$PID"
+$folder = New-TestFolder 'tk-file-changes'
 New-Item -ItemType Directory -Force (Join-Path $folder 'sub') | Out-Null
 
 Test 'normal documents are reported' {
-    Assert-True (-not (Test-Ignored "$folder\Offerte.docx"))
-    Assert-True (-not (Test-Ignored "$folder\sub\plan.xlsx"))
+    Assert-True (-not (Test-Ignored "$folder/Offerte.docx"))
+    Assert-True (-not (Test-Ignored "$folder/sub/plan.xlsx"))
 }
 
 Test 'temporary files, hidden and tool folders and folders themselves are ignored' {
-    foreach ($path in @("$folder\~`$Offerte.docx", "$folder\x.tmp", "$folder\download.crdownload", "$folder\.git\index", "$folder\app\node_modules\a.js", "$folder\.obsidian\workspace.json", "$folder\sub")) {
+    foreach ($path in @("$folder/~`$Offerte.docx", "$folder/x.tmp", "$folder/download.crdownload", "$folder/.git/index", "$folder/app/node_modules/a.js", "$folder/.obsidian/workspace.json", "$folder/sub")) {
         Assert-True (Test-Ignored $path) "$path should be ignored"
     }
 }
 
+Test 'Windows paths are handled the same' {
+    Assert-True (Test-Ignored 'C:\Klanten\Contoso\.git\index')
+    Assert-True (Test-Ignored 'C:\Klanten\Contoso\app\node_modules\a.js')
+    Assert-True (-not (Test-Ignored 'C:\Klanten\Contoso\Offerte.docx'))
+}
+
 Test 'ignore patterns come from the settings' {
     $script:settings = [pscustomobject]@{ ignore_patterns = @('*.log') }
-    Assert-True (Test-Ignored "$folder\build.log")
-    Assert-True (-not (Test-Ignored "$folder\x.tmp")) 'the defaults are replaced'
+    Assert-True (Test-Ignored "$folder/build.log")
+    Assert-True (-not (Test-Ignored "$folder/x.tmp")) 'the defaults are replaced'
     $script:settings = $null
 }
 

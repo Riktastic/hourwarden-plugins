@@ -1,4 +1,4 @@
-. "$PSScriptRoot\TestKit.ps1"
+. "$PSScriptRoot/TestKit.ps1"
 . (Use-Plugin 'remote-workspaces')
 
 Test 'Citrix desktop and app' {
@@ -16,6 +16,11 @@ Test 'the clients own windows are no workplace' {
     Assert-Equal $null (Get-WorkspaceName 'windowsapp.exe' 'Windows App')
     Assert-Equal $null (Get-WorkspaceName 'msrdc.exe' 'Remote Desktop')
     Assert-Equal $null (Get-WorkspaceName 'notepad.exe' 'Contoso - Desktop Viewer')
+}
+
+Test 'Citrix and Horizon on Linux' {
+    Assert-Equal 'Fabrikam ERP' (Get-WorkspaceName 'wfica' 'Fabrikam ERP (Remote)')
+    Assert-Equal 'FAB-VDI-01' (Get-WorkspaceName 'vmware-view' 'FAB-VDI-01 - VMware Horizon Client')
 }
 
 Complete-Tests

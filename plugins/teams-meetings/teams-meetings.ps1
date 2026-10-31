@@ -4,7 +4,7 @@
 # New Teams is a packaged app (MSTeams_8wekyb3d8bbwe) directly under the key;
 # classic Teams appears under NonPackaged. LastUsedTimeStop = 0 means in use.
 
-. "$PSScriptRoot\protocol.ps1"
+. "$PSScriptRoot/protocol.ps1"
 
 Add-Type -TypeDefinition @"
 using System;

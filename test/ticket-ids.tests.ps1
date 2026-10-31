@@ -1,4 +1,4 @@
-. "$PSScriptRoot\TestKit.ps1"
+. "$PSScriptRoot/TestKit.ps1"
 . (Use-Plugin 'ticket-ids')
 
 function Hint([string]$Title) { Get-TicketHint $Title $defaultPatterns $defaultIgnore }
@@ -33,6 +33,12 @@ Test 'look-alikes are not tickets' {
 
 Test 'your own pattern' {
     Assert-Equal 'T#4411' (Get-TicketHint 'Ticket T#4411: VPN down' @('T#\d+') '').ticket_id
+}
+
+Test 'browsers on Linux are recognised by their program name' {
+    Assert-True (Test-App 'firefox' $defaultApps)
+    Assert-True (Test-App 'msedge' $defaultApps)
+    Assert-True (Test-App 'chromium' $defaultApps)
 }
 
 Complete-Tests

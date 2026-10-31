@@ -14,7 +14,14 @@ $script:passed = 0
 $script:failures = New-Object System.Collections.Generic.List[string]
 
 function Use-Plugin([string]$Id) {
-    return Join-Path (Split-Path $PSScriptRoot -Parent) "plugins\$Id\$Id.ps1"
+    return Join-Path (Split-Path $PSScriptRoot -Parent) "plugins/$Id/$Id.ps1"
+}
+
+# A fresh folder in the temporary folder, on Windows and Linux.
+function New-TestFolder([string]$Name) {
+    $path = Join-Path ([IO.Path]::GetTempPath()) "$Name-$PID"
+    New-Item -ItemType Directory -Force $path | Out-Null
+    return $path
 }
 
 # Hashtables are compared by key, whatever their order.

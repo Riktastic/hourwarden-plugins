@@ -1,10 +1,11 @@
 # Saved files in customer folders.
 #
-# One FileSystemWatcher per customer folder (subfolders included). Hidden
+# One FileSystemWatcher per customer folder (subfolders included; inotify
+# on Linux). Hidden
 # folders, temporary files and bursts (sync clients, git checkouts) are
 # ignored. The host decides whether the change belongs to the user's work.
 
-. "$PSScriptRoot\protocol.ps1"
+. "$PSScriptRoot/protocol.ps1"
 
 $script:watchers = @()
 $script:watched = @()
@@ -41,7 +42,8 @@ function Reset-Watchers {
 }
 
 function Test-Ignored([string]$path) {
-    if ($path -match '\\\.[^\\]+\\' -or $path -match '\\(node_modules|\.git)\\') { return $true }
+    # Hidden folders and tool folders, with \ (Windows) or / (Linux).
+    if ($path -match '[\\/]\.[^\\/]+[\\/]' -or $path -match '[\\/](node_modules|\.git)[\\/]') { return $true }
     $name = Split-Path -Leaf $path
     $defaults = @('~$*', '*.tmp', '*.temp', '*.lock', '*.crdownload', '*.partial')
     foreach ($pattern in @(Get-Setting 'ignore_patterns' $defaults)) {

@@ -1,4 +1,4 @@
-. "$PSScriptRoot\TestKit.ps1"
+. "$PSScriptRoot/TestKit.ps1"
 . (Use-Plugin 'office-paths')
 
 $fg = [pscustomobject]@{ hwnd = 42; exe = 'winword.exe' }

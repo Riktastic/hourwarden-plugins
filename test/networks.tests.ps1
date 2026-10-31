@@ -1,4 +1,4 @@
-. "$PSScriptRoot\TestKit.ps1"
+. "$PSScriptRoot/TestKit.ps1"
 . (Use-Plugin 'networks')
 
 function Profile([string]$Name, [string]$Alias) { [pscustomobject]@{ Name = $Name; InterfaceAlias = $Alias } }
@@ -40,6 +40,26 @@ Test 'ignored networks are skipped' {
 
 Test 'nothing connected' {
     Assert-Equal $null (Select-Network @() $adapters @() $true @())
+}
+
+Test 'Linux: Wi-Fi from NetworkManager' {
+    $lines = @('lo:loopback', 'Office LAN:802-3-ethernet', 'Olifantenpoot 5G:802-11-wireless', 'docker0:bridge')
+    Assert-Equal @{ name = 'Olifantenpoot 5G'; kind = 'wifi' } (Select-NmNetwork $lines $true @())
+    Assert-Equal @{ name = 'Office LAN'; kind = 'wired' } (Select-NmNetwork @('Office LAN:802-3-ethernet', 'lo:loopback') $true @())
+}
+
+Test 'Linux: a VPN wins when preferred' {
+    $lines = @('Home:802-11-wireless', 'Contoso VPN:vpn')
+    Assert-Equal @{ name = 'Contoso VPN'; kind = 'vpn' } (Select-NmNetwork $lines $true @())
+    Assert-Equal 'Home' (Select-NmNetwork $lines $false @()).name
+    Assert-Equal 'wg-contoso' (Select-NmNetwork @('Home:802-11-wireless', 'wg-contoso:wireguard') $true @()).name
+}
+
+Test 'Linux: escaped colons, ignored and no networks' {
+    Assert-Equal 'Cafe: guest' (Select-NmNetwork @('Cafe\: guest:802-11-wireless') $true @()).name
+    Assert-Equal 'Office LAN' (Select-NmNetwork @('Home:802-11-wireless', 'Office LAN:802-3-ethernet') $true @('Home')).name
+    Assert-Equal $null (Select-NmNetwork @() $true @())
+    Assert-Equal $null (Select-NmNetwork @('lo:loopback') $true @())
 }
 
 Complete-Tests

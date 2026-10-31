@@ -6,24 +6,26 @@
 # The name is reported as the document, which is matched against customer
 # names and aliases like a file name; add an alias if the name differs.
 
-. "$PSScriptRoot\protocol.ps1"
+. "$PSScriptRoot/protocol.ps1"
 
-# Executable -> title suffixes to drop.
+# Program (without .exe) -> title suffixes to drop. Citrix Workspace
+# (wfica) and VMware Horizon also run on Linux.
 $clients = @{
-    'cdviewer.exe'       = ' - Desktop Viewer$'
-    'wfica32.exe'        = ' \((Remote|Extern)\)$| - Citrix Workspace$'
-    'msrdc.exe'          = ' - (Remote Desktop|Extern bureaublad)$'
-    'windows365.exe'     = ' - Windows 365$'
-    'windowsapp.exe'     = ' - Windows App$'
-    'vmware-view.exe'    = ' - VMware Horizon( Client)?$'
-    'vmware-remotemks.exe' = ' - VMware Horizon( Client)?$'
+    'cdviewer'         = ' - Desktop Viewer$'
+    'wfica32'          = ' \((Remote|Extern)\)$| - Citrix Workspace$'
+    'wfica'            = ' \((Remote|Extern)\)$| - Citrix Workspace$'
+    'msrdc'            = ' - (Remote Desktop|Extern bureaublad)$'
+    'windows365'       = ' - Windows 365$'
+    'windowsapp'       = ' - Windows App$'
+    'vmware-view'      = ' - VMware Horizon( Client)?$'
+    'vmware-remotemks' = ' - VMware Horizon( Client)?$'
 }
 $clientWindows = '^(Citrix Workspace|Windows App|Windows 365|Remote Desktop|VMware Horizon( Client)?|Microsoft Remote Desktop)$'
 
 # The workplace name from a client's window title, or $null for the
 # client's own windows (its start screen or settings).
 function Get-WorkspaceName([string]$Exe, [string]$Title) {
-    $suffix = $clients[$Exe.ToLower()]
+    $suffix = $clients[(Get-AppName $Exe)]
     if ($null -eq $suffix -or -not $Title) { return $null }
     $name = ($Title -replace $suffix, '').Trim()
     if (-not $name -or $name -match $clientWindows) { return $null }

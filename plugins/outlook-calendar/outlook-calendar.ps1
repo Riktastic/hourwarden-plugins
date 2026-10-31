@@ -4,7 +4,7 @@
 # Uses the running Outlook (classic) through COM. Reads the time, subject,
 # location and the attendees' mail domains; never the body.
 
-. "$PSScriptRoot\protocol.ps1"
+. "$PSScriptRoot/protocol.ps1"
 
 $olFolderCalendar = 9
 $olFree = 0

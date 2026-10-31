@@ -1,5 +1,7 @@
 # VS Code folders and git repositories
 
+**Works on:** Windows and Linux. On Linux, plugins need PowerShell 7 (`pwsh`).
+
 Finds the folder of the VS Code (or Cursor, Windsurf, VSCodium) window in front and the git repository it belongs to, such as contoso/portal. The folder counts as a customer folder; the repository's owner and name are matched against customer names and aliases. Remote SSH windows give their server.
 
 ## What it does

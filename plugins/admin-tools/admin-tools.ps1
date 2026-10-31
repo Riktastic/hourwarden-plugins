@@ -2,17 +2,18 @@
 # of SQL Server Management Studio, WinSCP, FileZilla, Hyper-V and VMware
 # consoles and Windows management consoles (Active Directory, DNS, Group
 # Policy). The server counts like a remote desktop server: add a remote
-# server rule, or a customer alias that is part of its name.
+# server rule, or a customer alias that is part of its name. FileZilla and
+# VMware Remote Console also run on Linux; the others are Windows programs.
 
-. "$PSScriptRoot\protocol.ps1"
+. "$PSScriptRoot/protocol.ps1"
 
 $hostName = '[A-Za-z0-9][A-Za-z0-9-]*(\.[A-Za-z0-9-]+)*'
 
 # What a title says about the system you work on, or $null.
 function Get-AdminTarget([string]$Exe, [string]$Title) {
     if (-not $Title) { return $null }
-    switch ($Exe.ToLower()) {
-        'ssms.exe' {
+    switch (Get-AppName $Exe) {
+        'ssms' {
             # "Query.sql - SQL01\PROD.Sales (CONTOSO\rik (53)) - Microsoft SQL Server Management Studio"
             if ($Title -match "\s-\s(?<target>[^\s()]+)\s\([^)]*\)") {
                 $target = $Matches.target
@@ -21,23 +22,23 @@ function Get-AdminTarget([string]$Exe, [string]$Title) {
                 return @{ remote_server = $target.ToLower() }
             }
         }
-        'winscp.exe' {
+        'winscp' {
             # "/var/www - deploy@web01.contoso.nl - WinSCP"
             if ($Title -match "(?:^|\s-\s)[^\s@]+@(?<host>$hostName)\s-\sWinSCP") { return @{ remote_server = $Matches.host.ToLower() } }
         }
-        'filezilla.exe' {
+        'filezilla' {
             # "Contoso site - sftp://deploy@ftp.contoso.nl - FileZilla"
             if ($Title -match "(?:s?ftps?|sftp)://(?:[^@/\s]+@)?(?<host>$hostName)") { return @{ remote_server = $Matches.host.ToLower() } }
         }
-        'vmconnect.exe' {
+        'vmconnect' {
             # "APP01 on HV-HOST01 - Virtual Machine Connection"
             if ($Title -match "^(?<vm>.+?)\son\s(?<host>$hostName)\s-\s") { return @{ remote_server = $Matches.vm.Trim(); remote_folder = $Matches.host } }
         }
-        'vmrc.exe' {
+        'vmrc' {
             # "APP01 - VMware Remote Console"
             if ($Title -match "^(?<vm>.+?)\s-\sVMware Remote Console") { return @{ remote_server = $Matches.vm.Trim() } }
         }
-        'mmc.exe' {
+        'mmc' {
             # "Active Directory Users and Computers - [... [dc01.contoso.local]]", "DNS Manager - [DNS\dc01.contoso.local]"
             foreach ($m in [regex]::Matches($Title, "[\[\\\s:](?<name>[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)+)(?=[\]\\\s]|$)")) {
                 $name = $m.Groups['name'].Value

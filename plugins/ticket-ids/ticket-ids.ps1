@@ -5,9 +5,11 @@
 # the top bar as the task; it never decides the customer and nothing is
 # sent to Jira, TopDesk or anywhere else.
 
-. "$PSScriptRoot\protocol.ps1"
+. "$PSScriptRoot/protocol.ps1"
 
-$defaultApps = @('msedge.exe', 'chrome.exe', 'firefox.exe', 'brave.exe', 'outlook.exe', 'olk.exe', 'ms-teams.exe')
+# Names with or without .exe; on Linux the same browsers run as msedge,
+# chrome, firefox and brave.
+$defaultApps = @('msedge.exe', 'chrome.exe', 'firefox.exe', 'brave.exe', 'outlook.exe', 'olk.exe', 'ms-teams.exe', 'chromium', 'teams-for-linux')
 $defaultPatterns = @(
     '\b[A-Z][A-Z0-9]{1,9}-\d{1,7}\b',                    # Jira, YouTrack, Linear: CON-123
     '\b[IMWC] ?\d{4}[ -]\d{3,6}\b',                      # TopDesk: I 2410 123, I2410-123
@@ -49,7 +51,7 @@ while ($true) {
     [void](Receive-Messages)
     $fg = $script:foreground
     $apps = @(Get-Setting 'apps' $defaultApps | ForEach-Object { $_.ToLower() })
-    if ($fg -and $apps -contains $fg.exe) {
+    if ($fg -and (Test-App $fg.exe $apps)) {
         try {
             $hint = Get-TicketHint $fg.title @(Get-Setting 'patterns' $defaultPatterns) (Get-Setting 'ignore' $defaultIgnore)
             if ($hint) {

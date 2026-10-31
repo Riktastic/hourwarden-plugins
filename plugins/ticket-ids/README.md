@@ -1,5 +1,7 @@
 # Ticket IDs from window titles
 
+**Works on:** Windows and Linux. On Linux, plugins need PowerShell 7 (`pwsh`).
+
 Spots ticket numbers such as CON-123 (Jira), I 2410 123 (TopDesk) or INC0012345 (ServiceNow) in the title of your browser, Outlook or Teams, and offers them in the top bar as the task. It never changes the customer and does not connect to Jira or TopDesk.
 
 ## What it does
