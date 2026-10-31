@@ -1,4 +1,5 @@
-# Runs the unit tests of every plugin (test\<plugin>.tests.ps1), each in its
+# Runs the unit tests of every plugin (test\<plugin>.tests.ps1) and of the
+# shared protocol helpers (test\protocol.tests.ps1), each in its
 # own PowerShell process so plugins cannot see each other's functions.
 #
 #   powershell -ExecutionPolicy Bypass -File test\Run-Tests.ps1
@@ -40,4 +41,4 @@ foreach ($dir in Get-ChildItem (Join-Path $root 'plugins') -Directory -Filter $P
     if ($problem) { Write-Host "$($dir.Name): $problem" -ForegroundColor Yellow; $failed += "$($dir.Name) docs" }
 }
 if ($failed.Count) { Write-Host "Failed: $($failed -join ', ')" -ForegroundColor Red; exit 1 }
-Write-Host "All tests passed ($($files.Count) plugins)" -ForegroundColor Green
+Write-Host "All tests passed ($($files.Count) test files: the plugins and their shared protocol helpers)" -ForegroundColor Green

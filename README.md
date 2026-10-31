@@ -2,7 +2,9 @@
 
 The plugin store for [Timekeeper](../Timekeeper). The app's **Plugins** screen lists what is in `index.json` here and installs plugins from this repository, checking every file's SHA-256 and the signature of `index.json`.
 
-For now the store is this local folder (setting **Plugin store** in Timekeeper; empty means this folder next to the Timekeeper source). Later this repository moves to GitHub and the app downloads from there; the layout stays the same.
+Timekeeper reads plugin repositories from GitHub (`https://github.com/Riktastic/timekeeper-plugins` by default), from any HTTPS address serving these files, or from a folder; a user can add several on the Plugins screen. The app downloads `index.json`, `index.json.sig` and the files the index lists, so a repository needs nothing more than this layout. A development build of Timekeeper also adds this folder when it sits next to the Timekeeper source.
+
+To publish your own repository, copy this layout, run `build-index.ps1` with your own signing key, and push it to GitHub.
 
 | Plugin | What it adds |
 |---|---|
