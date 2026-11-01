@@ -1,6 +1,6 @@
 id = "outlook-calendar"
 name = "Outlook calendar"
-version = "0.1.2"
+version = "0.1.3"
 author = "Timekeeper"
 category = "Mail"
 docs = "README.md"
@@ -10,7 +10,6 @@ platforms = ["windows"]
 permissions = [
     "Reads the time, subject, location and attendees of your Outlook appointments (never the body)",
     "Talks to Outlook through its automation interface (COM)",
-    "Runs a PowerShell script",
 ]
 
 [run]

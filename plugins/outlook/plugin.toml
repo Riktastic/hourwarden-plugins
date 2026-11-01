@@ -1,6 +1,6 @@
 id = "outlook"
 name = "Outlook mail"
-version = "0.2.3"
+version = "0.2.4"
 author = "Timekeeper"
 category = "Mail"
 docs = "README.md"
@@ -11,7 +11,6 @@ permissions = [
     "Reads the subject, sender and recipients of the selected or open Outlook item (read only, never the body)",
     "Reads the date, sender and recipients of mail in Sent Items and the Inbox, to count mail per customer",
     "Talks to Outlook through its automation interface (COM)",
-    "Runs a PowerShell script",
 ]
 
 [run]

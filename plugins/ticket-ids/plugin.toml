@@ -1,6 +1,6 @@
 id = "ticket-ids"
 name = "Ticket IDs from window titles"
-version = "0.2.0"
+version = "0.2.1"
 author = "Timekeeper"
 category = "Tickets"
 docs = "README.md"
@@ -9,7 +9,6 @@ api = 1
 platforms = ["windows", "linux"]
 permissions = [
     "Reads the title of the window in front, for the applications you choose",
-    "Runs a PowerShell script",
 ]
 
 [run]

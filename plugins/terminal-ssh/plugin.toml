@@ -1,15 +1,15 @@
 id = "terminal-ssh"
 name = "SSH sessions in terminals"
-version = "0.2.0"
+version = "0.3.0"
 author = "Timekeeper"
 category = "Remote access"
 docs = "README.md"
-description = "Recognises the server of an SSH session from the title of Windows Terminal, PuTTY, Konsole, GNOME Terminal and other terminals, so time on a customer's server goes to that customer, like a remote desktop session."
+description = "Recognises the server of an SSH session from the title or the running ssh command of Windows Terminal, PuTTY, Konsole, GNOME Terminal and other terminals, so time on a customer's server goes to that customer, like a remote desktop session."
 api = 1
 platforms = ["windows", "linux"]
 permissions = [
     "Reads the title of terminal windows in front",
-    "Runs a PowerShell script",
+    "Reads the command line of ssh started from that terminal, for the server name",
 ]
 
 [run]

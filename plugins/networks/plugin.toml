@@ -1,6 +1,6 @@
 id = "networks"
 name = "Wi-Fi and VPN networks"
-version = "0.2.0"
+version = "0.2.1"
 author = "Timekeeper"
 category = "Location"
 docs = "README.md"
@@ -9,7 +9,6 @@ api = 1
 platforms = ["windows", "linux"]
 permissions = [
     "Reads the names of connected networks and VPN connections",
-    "Runs a PowerShell script",
 ]
 
 [run]

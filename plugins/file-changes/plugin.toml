@@ -1,6 +1,6 @@
 id = "file-changes"
 name = "Saved files in customer folders"
-version = "0.2.0"
+version = "0.2.1"
 author = "Timekeeper"
 category = "Documents"
 docs = "README.md"
@@ -9,7 +9,6 @@ api = 1
 platforms = ["windows", "linux"]
 permissions = [
     "Watches the customer folders you configured for files being saved (names only, never the content)",
-    "Runs a PowerShell script",
 ]
 
 [run]

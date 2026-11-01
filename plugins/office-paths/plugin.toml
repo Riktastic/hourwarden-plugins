@@ -1,6 +1,6 @@
 id = "office-paths"
 name = "Office and Explorer paths"
-version = "0.1.3"
+version = "0.1.4"
 author = "Timekeeper"
 category = "Documents"
 docs = "README.md"
@@ -10,7 +10,6 @@ platforms = ["windows"]
 permissions = [
     "Reads the file path of the active Word, Excel and PowerPoint document (never the content)",
     "Reads the folder shown in File Explorer windows",
-    "Runs a PowerShell script",
 ]
 
 [run]

@@ -1,6 +1,6 @@
 id = "web-addresses"
 name = "Web addresses in the browser"
-version = "0.4.0"
+version = "0.4.1"
 author = "Timekeeper"
 category = "Browser"
 docs = "README.md"
@@ -10,7 +10,6 @@ platforms = ["windows"]
 permissions = [
     "Reads the address bar of the browser window in front (only the domain and Microsoft tenant, subscription and workspace IDs are used)",
     "Uses Windows UI Automation",
-    "Runs a PowerShell script",
 ]
 
 [run]

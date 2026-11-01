@@ -1,6 +1,6 @@
 id = "admin-tools"
 name = "Servers in admin tools"
-version = "0.2.0"
+version = "0.2.1"
 author = "Timekeeper"
 category = "Remote access"
 docs = "README.md"
@@ -9,7 +9,6 @@ api = 1
 platforms = ["windows", "linux"]
 permissions = [
     "Reads the title of the window in front",
-    "Runs a PowerShell script",
 ]
 
 [run]

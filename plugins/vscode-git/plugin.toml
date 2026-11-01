@@ -1,6 +1,6 @@
 id = "vscode-git"
 name = "VS Code folders and git repositories"
-version = "0.2.0"
+version = "0.2.1"
 author = "Timekeeper"
 category = "Development"
 docs = "README.md"
@@ -10,7 +10,6 @@ platforms = ["windows", "linux"]
 permissions = [
     "Reads the title of VS Code windows in front",
     "Reads VS Code's list of recent workspace folders and the .git/config of the open folder",
-    "Runs a PowerShell script",
 ]
 
 [run]

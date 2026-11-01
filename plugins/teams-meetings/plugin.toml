@@ -1,6 +1,6 @@
 id = "teams-meetings"
 name = "Teams meetings"
-version = "0.1.3"
+version = "0.1.4"
 author = "Timekeeper"
 category = "Meetings"
 docs = "README.md"
@@ -10,7 +10,6 @@ platforms = ["windows"]
 permissions = [
     "Reads which app uses the microphone (Windows privacy registry, read only)",
     "Reads the titles of Teams windows",
-    "Runs a PowerShell script",
 ]
 
 [run]

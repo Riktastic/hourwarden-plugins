@@ -42,4 +42,16 @@ Test 'this computer is never a server' {
     Assert-Equal $null (Get-SshHost "rik@$($me): ~")
 }
 
+Test 'ssh command lines of running processes' {
+    Assert-Equal 'web01.contoso.local' (Get-SshCommandHost '"C:\Windows\System32\OpenSSH\ssh.exe" -p 22 admin@web01.contoso.local' $local)
+    Assert-Equal 'db01' (Get-SshCommandHost 'C:\Windows\System32\OpenSSH\ssh.exe -i C:\keys\id root@db01' $local)
+    Assert-Equal 'app01' (Get-SshCommandHost '/usr/bin/ssh -J jump app01' $local)
+    Assert-Equal $null (Get-SshCommandHost '/usr/bin/ssh localhost' $local)
+    Assert-Equal $null (Get-SshCommandHost '' $local)
+}
+
+Test 'the current terminal has no ssh child here' {
+    Assert-Equal $null (Get-SshFromProcesses $PID $local)
+}
+
 Complete-Tests
