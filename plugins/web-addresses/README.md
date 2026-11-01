@@ -6,7 +6,7 @@ Reads the domain of the page in front in Edge, Chrome, Brave and other Chromium 
 
 ## What it does
 
-Reads the address of the page in front in Edge, Chrome, Brave, Vivaldi, Opera and Arc, and sends Timekeeper:
+Reads the address of the page in front in Edge, Chrome, Firefox, Brave, Vivaldi, Opera and Arc, and sends Timekeeper:
 
 - the **domain** (`portal.contoso.com`); SharePoint admin and OneDrive addresses count as the customer's SharePoint (`contoso.sharepoint.com`);
 - the customer's **Microsoft tenant**: from `#@contoso.onmicrosoft.com` (or `#@` with a tenant ID) in Azure portal and Entra addresses, and from `ctid=` in Power BI and Fabric addresses;
@@ -35,6 +35,6 @@ You use one browser profile for several customers. With a browser profile per cu
 
 | Setting | Default | What it does |
 |---|---|---|
-| Browsers | `msedge.exe, chrome.exe, brave.exe, vivaldi.exe, opera.exe...` | Programs whose address bar is read. |
+| Browsers | `msedge.exe, chrome.exe, firefox.exe, brave.exe, vivaldi.exe...` | Programs whose address bar is read. |
 | Ignore these domains | `(none)` | Domains (and their subdomains) that are never reported, such as your own company's intranet. |
 | Check every | `3` | How often the address bar is read, in seconds. |

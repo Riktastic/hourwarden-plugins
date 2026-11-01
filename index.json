@@ -136,13 +136,13 @@
                     },
                     {
                         "id":  "web-addresses",
-                        "version":  "0.3.2",
+                        "version":  "0.4.0",
                         "path":  "plugins/web-addresses",
                         "files":  {
-                                      "plugin.toml":  "9134882e8f9456e7a0b4d86f6ed28cf7b800cff55666dfae79335a954f52ac8f",
+                                      "plugin.toml":  "5bd692243cdf3c678f0370a2bd97977bbdfa8e5360d4be501c19d695126799d2",
                                       "protocol.ps1":  "df82c64d2d403b93407274a5ef892be39487418ab92d7bba1630816c31b2e80e",
-                                      "README.md":  "bcffd293ba4815ae15504ba5d20ca19873fefa92785ecf79b1621a63e2ba7cea",
-                                      "web-addresses.ps1":  "d89f7edd4d80990d5f3f75c25de3540c9d6aa2fa3738f7a207cea29a0444b81e"
+                                      "README.md":  "dff2fd50ff01223dbe96887b30a5fd0a9fc605684db7d9d3a44a09348205c4ad",
+                                      "web-addresses.ps1":  "97f518f260e658ce3469dcaa874ebe3ac0acaa70c8d7ee6626fed84425f6c8f7"
                                   }
                     }
                 ]

@@ -1,4 +1,4 @@
-# Web addresses: the domain of the page in front in Edge, Chrome, Brave
+# Web addresses: the domain of the page in front in Edge, Chrome, Firefox, Brave
 # and other Chromium browsers.
 #
 # The address bar is read through UI Automation. Only the domain
@@ -10,7 +10,7 @@
 
 Add-Type -AssemblyName UIAutomationClient, UIAutomationTypes
 
-$defaultBrowsers = @('msedge.exe', 'chrome.exe', 'brave.exe', 'vivaldi.exe', 'opera.exe', 'arc.exe')
+$defaultBrowsers = @('msedge.exe', 'chrome.exe', 'firefox.exe', 'brave.exe', 'vivaldi.exe', 'opera.exe', 'arc.exe')
 $internalSchemes = '^(edge|chrome|brave|vivaldi|opera|about|file|data|javascript|view-source|devtools|chrome-extension|extension)[:]'
 $script:addressBars = @{}
 
@@ -88,18 +88,24 @@ function Test-IgnoredDomain([string]$Domain, $Ignore) {
     return $false
 }
 
-# The browser's address bar: the first text field, which in Chromium comes
-# before the page. Kept per window, as finding it takes a moment.
+# The browser's address bar: Firefox's is named urlbar-input; in Chromium
+# browsers it is the first text field, which comes before the page. Kept per
+# window, as finding it takes a moment.
 function Get-AddressBar([long]$Hwnd) {
     $bar = $script:addressBars[$Hwnd]
     if ($bar) {
         try { [void]$bar.Current.Name; return $bar } catch { $script:addressBars.Remove($Hwnd) }
     }
     $root = [System.Windows.Automation.AutomationElement]::FromHandle([IntPtr]$Hwnd)
-    $condition = New-Object System.Windows.Automation.PropertyCondition(
-        [System.Windows.Automation.AutomationElement]::ControlTypeProperty,
-        [System.Windows.Automation.ControlType]::Edit)
-    $bar = $root.FindFirst([System.Windows.Automation.TreeScope]::Descendants, $condition)
+    $firefox = New-Object System.Windows.Automation.PropertyCondition(
+        [System.Windows.Automation.AutomationElement]::AutomationIdProperty, 'urlbar-input')
+    $bar = $root.FindFirst([System.Windows.Automation.TreeScope]::Descendants, $firefox)
+    if (-not $bar) {
+        $condition = New-Object System.Windows.Automation.PropertyCondition(
+            [System.Windows.Automation.AutomationElement]::ControlTypeProperty,
+            [System.Windows.Automation.ControlType]::Edit)
+        $bar = $root.FindFirst([System.Windows.Automation.TreeScope]::Descendants, $condition)
+    }
     if ($bar) {
         if ($script:addressBars.Count -gt 50) { $script:addressBars.Clear() }
         $script:addressBars[$Hwnd] = $bar

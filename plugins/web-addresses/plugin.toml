@@ -1,6 +1,6 @@
 id = "web-addresses"
 name = "Web addresses in the browser"
-version = "0.3.2"
+version = "0.4.0"
 author = "Timekeeper"
 category = "Browser"
 docs = "README.md"
@@ -22,7 +22,7 @@ key = "browsers"
 label = "Browsers"
 type = "list"
 description = "Programs whose address bar is read."
-default = ["msedge.exe", "chrome.exe", "brave.exe", "vivaldi.exe", "opera.exe", "arc.exe"]
+default = ["msedge.exe", "chrome.exe", "firefox.exe", "brave.exe", "vivaldi.exe", "opera.exe", "arc.exe"]
 
 [[settings]]
 key = "ignore_domains"
