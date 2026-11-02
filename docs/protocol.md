@@ -1,6 +1,6 @@
 # Plugin protocol (API 1)
 
-A plugin is a folder with a `plugin.toml` manifest and the files it runs. Timekeeper starts the command in `[run]` with the plugin folder as working directory, without a window, and talks to it over stdin and stdout.
+A plugin is a folder with a `plugin.toml` manifest and the files it runs. HourWarden starts the command in `[run]` with the plugin folder as working directory, without a window, and talks to it over stdin and stdout.
 
 Every message is one line of JSON, a JSON-RPC 2.0 notification:
 
@@ -10,7 +10,7 @@ Every message is one line of JSON, a JSON-RPC 2.0 notification:
 
 Anything the plugin writes to stderr ends up in the plugin's log in the app.
 
-## From Timekeeper to the plugin
+## From HourWarden to the plugin
 
 | Method | Params | When |
 |---|---|---|
@@ -22,7 +22,7 @@ Anything the plugin writes to stderr ends up in the plugin's log in the app.
 
 A plugin must exit when stdin closes, on `shutdown`, or when the process `host_pid` no longer exists. `shared/protocol.ps1` does all of this for PowerShell plugins.
 
-## From the plugin to Timekeeper
+## From the plugin to HourWarden
 
 | Method | Params | Effect |
 |---|---|---|
@@ -35,7 +35,7 @@ A plugin must exit when stdin closes, on `shutdown`, or when the process `host_p
 | `metric` | `metric` (a-z and `_`, such as `mail_sent` or `mail_received`), `key` (unique per event), `at` (milliseconds since 1970), `domains` (list) | Counts one event for the customers with those mail domains. The same key counts only once, so it is safe to report an event again after a restart. Shown on the customer page and in reports. |
 | `log` | `message` | Written to the plugin's log. |
 
-How Timekeeper weighs the information: manual switch first, then customer folders, rules, mail domains, names and abbreviations (in titles, paths, Remote Desktop Manager folders and server names), recently saved files, and the network last.
+How HourWarden weighs the information: manual switch first, then customer folders, rules, mail domains, names and abbreviations (in titles, paths, Remote Desktop Manager folders and server names), recently saved files, and the network last.
 
 ## Manifest
 
@@ -69,7 +69,7 @@ max = 60
 
 1. Put the plugin in `plugins/<id>/`.
 2. Run `build-index.ps1`. It copies `shared/protocol.ps1` into plugins that use it and writes the SHA-256 of every file to `index.json`.
-3. Commit. Timekeeper checks every file against `index.json` when installing, and again before each start, so a changed script is never run without being reinstalled.
+3. Commit. HourWarden checks every file against `index.json` when installing, and again before each start, so a changed script is never run without being reinstalled.
 
 Test a plugin without the app:
 

@@ -1,7 +1,7 @@
 # VS Code (and Cursor, Windsurf, VSCodium): the folder of the workspace in
 # front and the git repository it belongs to.
 #
-# The title shows the workspace name ("main.rs - Timekeeper - Visual Studio
+# The title shows the workspace name ("main.rs - HourWarden - Visual Studio
 # Code"). VS Code's own workspace list maps that name to its folder, and
 # .git/config gives the repository ("contoso/portal"). The folder is
 # matched like a customer folder, the repository like a customer name.
@@ -22,7 +22,7 @@ $appNames = 'Visual Studio Code - Insiders|Visual Studio Code|Cursor|Windsurf|VS
 $script:workspaces = @{}
 $script:workspacesAt = [DateTime]::MinValue
 
-# "file:///d%3A/Projects/Timekeeper" -> "d:\Projects\Timekeeper",
+# "file:///d%3A/Projects/HourWarden" -> "d:\Projects\HourWarden",
 # "file:///home/rik/portal" -> "/home/rik/portal"; remote workspaces
 # (vscode-remote://) have no local folder.
 function ConvertFrom-FileUri([string]$Uri) {

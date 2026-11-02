@@ -18,7 +18,7 @@ Reads the title of the admin tool in front and takes the server, database or dom
 
 ## Setting it up
 
-Tell Timekeeper whose servers they are, on the customer page:
+Tell HourWarden whose servers they are, on the customer page:
 
 - add a **remote server** rule with the server name (for example `sql01.contoso.local`), or
 - add an **alias** that appears in the server or domain name (for example `contoso`).

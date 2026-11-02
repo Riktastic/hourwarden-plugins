@@ -1,7 +1,7 @@
 id = "networks"
 name = "Wi-Fi and VPN networks"
 version = "0.2.1"
-author = "Timekeeper"
+author = "HourWarden"
 category = "Location"
 docs = "README.md"
 description = "Reports the Wi-Fi network or VPN you are connected to. Link a customer's office Wi-Fi or VPN to that customer; it is used only when nothing else decides the customer."

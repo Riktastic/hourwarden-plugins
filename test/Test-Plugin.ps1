@@ -1,4 +1,4 @@
-# Runs a plugin the way Timekeeper does and prints what it reports.
+# Runs a plugin the way HourWarden does and prints what it reports.
 #
 #   powershell -ExecutionPolicy Bypass -File test\Test-Plugin.ps1 -Plugin networks -Seconds 10
 #   ... -Plugin office-paths -Foreground '{"hwnd":0,"pid":0,"exe":"explorer.exe","title":"Documents"}'

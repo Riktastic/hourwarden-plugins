@@ -1,4 +1,4 @@
-# Timekeeper plugin protocol helpers (plugin API 1).
+# HourWarden plugin protocol helpers (plugin API 1).
 #
 # The host starts the plugin with stdin/stdout piped. Every message is one
 # JSON-RPC 2.0 notification per line: {"jsonrpc":"2.0","method":...,"params":...}.
@@ -11,10 +11,10 @@ $script:settings = $null
 $script:foreground = $null
 $script:folders = @()
 
-# Unit tests set TIMEKEEPER_PLUGIN_TEST=1 and dot-source the plugin: nothing
+# Unit tests set HOURWARDEN_PLUGIN_TEST=1 and dot-source the plugin: nothing
 # is read from stdin, sent messages are collected in $script:sent, and the
 # plugin returns before its main loop (see test/Run-Tests.ps1).
-$script:testMode = [bool]$env:TIMEKEEPER_PLUGIN_TEST
+$script:testMode = [bool]$env:HOURWARDEN_PLUGIN_TEST
 if ($script:testMode) {
     $script:sent = New-Object System.Collections.ArrayList
 } else {

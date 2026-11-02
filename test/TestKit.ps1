@@ -5,10 +5,10 @@
 #   Test 'picks the Wi-Fi network' { Assert-Equal 'Home' (Select-Network ...).name }
 #   Complete-Tests
 #
-# TIMEKEEPER_PLUGIN_TEST makes shared/protocol.ps1 collect sent messages in
+# HOURWARDEN_PLUGIN_TEST makes shared/protocol.ps1 collect sent messages in
 # $script:sent instead of writing them, and the plugin return before its loop.
 
-$env:TIMEKEEPER_PLUGIN_TEST = '1'
+$env:HOURWARDEN_PLUGIN_TEST = '1'
 $ErrorActionPreference = 'Stop'
 $script:passed = 0
 $script:failures = New-Object System.Collections.Generic.List[string]

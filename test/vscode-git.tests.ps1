@@ -4,21 +4,21 @@
 $dot = [char]0x25CF
 
 Test 'file URIs become folders' {
-    Assert-Equal 'd:\Projects\Timekeeper' (ConvertFrom-FileUri 'file:///d%3A/Projects/Timekeeper')
+    Assert-Equal 'd:\Projects\HourWarden' (ConvertFrom-FileUri 'file:///d%3A/Projects/HourWarden')
     Assert-Equal 'C:\Klanten\Contoso Portal' (ConvertFrom-FileUri 'file:///C:/Klanten/Contoso%20Portal/')
     Assert-Equal $null (ConvertFrom-FileUri 'vscode-remote://ssh-remote%2Bweb01/srv/app')
     Assert-Equal '/home/rik/Klanten/Contoso Portal' (ConvertFrom-FileUri 'file:///home/rik/Klanten/Contoso%20Portal/')
 }
 
 Test 'workspace name from the title' {
-    Assert-Equal 'Timekeeper' (Get-WorkspaceFromTitle 'main.rs - Timekeeper - Visual Studio Code').name
-    Assert-Equal 'Timekeeper' (Get-WorkspaceFromTitle "$dot main.rs - Timekeeper - Visual Studio Code").name
+    Assert-Equal 'HourWarden' (Get-WorkspaceFromTitle 'main.rs - HourWarden - Visual Studio Code').name
+    Assert-Equal 'HourWarden' (Get-WorkspaceFromTitle "$dot main.rs - HourWarden - Visual Studio Code").name
     Assert-Equal 'portal' (Get-WorkspaceFromTitle 'portal - Visual Studio Code - Insiders').name
     Assert-Equal 'Contoso' (Get-WorkspaceFromTitle 'Contoso (Workspace) - Cursor').name
 }
 
 Test 'a known workspace wins over the file and profile names' {
-    Assert-Equal 'portal' (Get-WorkspaceFromTitle 'README.md - portal - Work - Visual Studio Code' @('portal', 'timekeeper')).name
+    Assert-Equal 'portal' (Get-WorkspaceFromTitle 'README.md - portal - Work - Visual Studio Code' @('portal', 'hourwarden')).name
 }
 
 Test 'remote SSH windows give their server' {
