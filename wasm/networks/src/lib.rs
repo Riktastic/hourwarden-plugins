@@ -31,7 +31,7 @@ fn configure(settings: &Value) {
         .as_array()
         .map(|a| a.iter().filter_map(|v| v.as_str().map(str::to_string)).collect())
         .unwrap_or_default();
-    s.poll_ms = settings["poll_seconds"].as_i64().unwrap_or(30).clamp(5, 600) * 1000;
+    s.poll_ms = hw::setting_i64(&settings["poll_seconds"]).unwrap_or(30).clamp(5, 600) * 1000;
     // Read again on the next tick with the new settings.
     s.polled_at = None;
 }

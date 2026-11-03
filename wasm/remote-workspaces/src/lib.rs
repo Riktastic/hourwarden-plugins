@@ -7,6 +7,9 @@
 //! This is the WebAssembly port (plugin API 2) of the PowerShell
 //! `remote-workspaces` plugin.
 
+// Single-threaded wasm: the poll state lives in statics between calls.
+#![allow(static_mut_refs)]
+
 use hourwarden_plugin as hw;
 use hw::{json, Value};
 
@@ -60,14 +63,23 @@ fn workspace_name(exe: &str, title: &str) -> Option<String> {
     (!name.is_empty() && !is_client_window(name)).then(|| name.to_string())
 }
 
-fn on_init(_data: Value) {
+static mut POLL: hw::ForegroundPoll = hw::ForegroundPoll::new();
+static mut POLL_MS: i64 = 2000;
+
+fn on_init(data: Value) {
+    unsafe { POLL_MS = hw::poll_ms(&data["settings"], 2) };
     hw::status("running", "Waiting for a remote workplace to be in front");
 }
 
 fn on_event(event: Value) {
-    if event["kind"] != "foreground" {
-        return;
+    if event["kind"] == "settings" {
+        unsafe { POLL_MS = hw::poll_ms(&event["settings"], 2) };
+    } else if let Some(fg) = unsafe { POLL.due(&event, POLL_MS) } {
+        on_foreground(&fg);
     }
+}
+
+fn on_foreground(event: &Value) {
     let exe = event["exe"].as_str().unwrap_or("").to_lowercase();
     let title = event["title"].as_str().unwrap_or("");
     if let Some(name) = workspace_name(&exe, title) {

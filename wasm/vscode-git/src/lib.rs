@@ -153,15 +153,22 @@ fn on_foreground(event: &Value) {
     hw::status("running", &format!("Knows {} VS Code folders", s.workspaces.len()));
 }
 
-fn on_init(_data: Value) {
+static mut POLL: hw::ForegroundPoll = hw::ForegroundPoll::new();
+static mut POLL_MS: i64 = 3000;
+
+fn on_init(data: Value) {
+    unsafe { POLL_MS = hw::poll_ms(&data["settings"], 3) };
     hw::status("running", "Waiting for VS Code to be in front");
 }
 
 fn on_event(event: Value) {
     match event["kind"].as_str() {
         Some("tick") => unsafe { STATE.now = event["now"].as_i64().unwrap_or(0) },
-        Some("foreground") => on_foreground(&event),
+        Some("settings") => return unsafe { POLL_MS = hw::poll_ms(&event["settings"], 3) },
         _ => {}
+    }
+    if let Some(fg) = unsafe { POLL.due(&event, POLL_MS) } {
+        on_foreground(&fg);
     }
 }
 

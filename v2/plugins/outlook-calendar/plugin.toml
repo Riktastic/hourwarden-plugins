@@ -1,0 +1,58 @@
+id = "outlook-calendar"
+name = "Outlook calendar"
+version = "0.3.0"
+author = "HourWarden"
+category = "Mail"
+docs = "README.md"
+description = "Reads your Outlook (classic) appointments of the last days, so the daily review can add meetings you attended away from the computer, for the customer of the attendees' mail domains or the customer named in the subject."
+api = 2
+capabilities = ["outlook.calendar"]
+platforms = ["windows"]
+permissions = [
+    "Reads the time, subject, location and attendees of your Outlook appointments (never the body)",
+    "Talks to Outlook through its automation interface (COM)",
+]
+
+[run]
+module = "plugin.wasm"
+
+[[settings]]
+key = "days_back"
+label = "Days back"
+type = "number"
+description = "How many days before today are offered in the daily review."
+default = 7
+min = 0
+max = 31
+
+[[settings]]
+key = "refresh_minutes"
+label = "Read the calendar every"
+type = "number"
+description = "How often the calendar is read again, in minutes."
+default = 15
+min = 1
+max = 60
+
+[[settings]]
+key = "skip_free"
+label = "Skip appointments marked free"
+type = "bool"
+description = "Appointments shown as Free (reminders, blocked travel time) are not offered."
+default = true
+
+[[settings]]
+key = "max_attendees"
+label = "Attendees to read"
+type = "number"
+description = "Large meetings only use the first attendees, to keep Outlook fast."
+default = 50
+min = 1
+max = 500
+
+[[settings]]
+key = "ignore_domains"
+label = "Ignore these domains"
+type = "list"
+description = "Your own company's mail domains, which are in every meeting and say nothing about the customer."
+default = []

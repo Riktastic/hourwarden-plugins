@@ -1,0 +1,46 @@
+id = "ticket-ids"
+name = "Ticket IDs from window titles"
+version = "0.3.0"
+author = "HourWarden"
+category = "Tickets"
+docs = "README.md"
+description = "Spots ticket numbers such as CON-123 (Jira), I 2410 123 (TopDesk) or INC0012345 (ServiceNow) in the title of your browser, Outlook or Teams, and offers them in the top bar as the task. It never changes the customer and does not connect to Jira or TopDesk."
+api = 2
+capabilities = []
+platforms = ["windows", "linux"]
+permissions = [
+    "Reads the title of the window in front, for the applications you choose",
+]
+
+[run]
+module = "plugin.wasm"
+
+[[settings]]
+key = "apps"
+label = "Applications"
+type = "list"
+description = "Programs whose window titles are read."
+default = ["msedge.exe", "chrome.exe", "firefox.exe", "brave.exe", "outlook.exe", "olk.exe", "ms-teams.exe", "chromium", "teams-for-linux"]
+
+[[settings]]
+key = "patterns"
+label = "Ticket patterns"
+type = "list"
+description = "Regular expressions for ticket IDs, tried in this order. The defaults cover Jira (ABC-123), TopDesk (I 2410 123) and ServiceNow (INC0012345)."
+default = ['\b[A-Z][A-Z0-9]{1,9}-\d{1,7}\b', '\b[IMWC] ?\d{4}[ -]\d{3,6}\b', '\b(?:INC|RITM|REQ|CHG|PRB|SCTASK|TASK)\d{7}\b']
+
+[[settings]]
+key = "ignore"
+label = "Not a ticket"
+type = "text"
+description = "Regular expression for matches that are not tickets, such as UTF-8 or COVID-19."
+default = '^(UTF|ISO|SHA|MD|COVID|WIN|TLS|SSL|IPV|HTTP|RFC|CVE|GPT|AES|RSA|USB|HDMI|PCI|DDR|LTE|IEEE|ASCII|ES|EN|NL|DE)-'
+
+[[settings]]
+key = "poll_seconds"
+label = "Check every"
+type = "number"
+description = "How often the window title is checked, in seconds."
+default = 2
+min = 1
+max = 30

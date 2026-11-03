@@ -116,6 +116,7 @@ fn configure(settings: &Value) {
     let state = unsafe { STATE.get_or_insert_with(|| State { browsers: Vec::new(), ignore: Vec::new(), patterns: None, seen: HashSet::new() }) };
     state.browsers = hw::string_list(&settings["browsers"], DEFAULT_BROWSERS).iter().map(|b| hw::app_name(b)).collect();
     state.ignore = hw::string_list(&settings["ignore_domains"], &[]);
+    unsafe { POLL_MS = hw::poll_ms(settings, 3) };
 }
 
 fn on_foreground(event: &Value) {
@@ -147,16 +148,19 @@ fn on_foreground(event: &Value) {
     hw::status("running", "Reading the address bar");
 }
 
+static mut POLL: hw::ForegroundPoll = hw::ForegroundPoll::new();
+static mut POLL_MS: i64 = 3000;
+
 fn on_init(data: Value) {
     configure(&data["settings"]);
     hw::status("running", "Waiting for a browser to be in front");
 }
 
 fn on_event(event: Value) {
-    match event["kind"].as_str() {
-        Some("foreground") => on_foreground(&event),
-        Some("settings") => configure(&event["settings"]),
-        _ => {}
+    if event["kind"] == "settings" {
+        configure(&event["settings"]);
+    } else if let Some(fg) = unsafe { POLL.due(&event, POLL_MS) } {
+        on_foreground(&fg);
     }
 }
 

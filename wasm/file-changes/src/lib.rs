@@ -48,7 +48,7 @@ fn state() -> &'static mut State {
 fn configure(settings: &Value) {
     let s = state();
     s.ignore = hw::string_list(&settings["ignore_patterns"], DEFAULT_IGNORE);
-    s.max_burst = settings["max_burst"].as_u64().unwrap_or(20).clamp(1, 10_000) as usize;
+    s.max_burst = hw::setting_i64(&settings["max_burst"]).unwrap_or(20).clamp(1, 10_000) as usize;
 }
 
 /// Matches a file name against a pattern with `*` and `?`, ignoring case.

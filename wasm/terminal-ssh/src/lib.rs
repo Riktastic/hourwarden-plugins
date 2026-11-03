@@ -244,15 +244,21 @@ fn configure(settings: &Value) {
     unsafe {
         APPS = apps;
         LOCAL = local;
+        POLL_MS = hw::poll_ms(settings, 2);
     }
 }
+
+static mut POLL: hw::ForegroundPoll = hw::ForegroundPoll::new();
+static mut POLL_MS: i64 = 2000;
 
 fn on_event(event: Value) {
     match event["kind"].as_str() {
         Some("tick") => unsafe { NOW = event["now"].as_i64().unwrap_or(0) },
-        Some("settings") => configure(&event["settings"]),
-        Some("foreground") => on_foreground(&event),
+        Some("settings") => return configure(&event["settings"]),
         _ => {}
+    }
+    if let Some(fg) = unsafe { POLL.due(&event, POLL_MS) } {
+        on_foreground(&fg);
     }
 }
 

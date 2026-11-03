@@ -29,7 +29,7 @@ static mut STATE: State = State { poll_ms: 5000, count_any_call: true, polled_at
 
 fn configure(settings: &Value) {
     let s = unsafe { &mut STATE };
-    s.poll_ms = settings["poll_seconds"].as_i64().unwrap_or(5).clamp(1, 60) * 1000;
+    s.poll_ms = hw::setting_i64(&settings["poll_seconds"]).unwrap_or(5).clamp(1, 60) * 1000;
     s.count_any_call = settings["count_any_call"].as_bool().unwrap_or(true);
 }
 

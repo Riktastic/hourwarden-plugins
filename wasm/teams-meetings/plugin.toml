@@ -1,0 +1,33 @@
+id = "teams-meetings"
+name = "Teams meetings"
+version = "0.3.0"
+author = "HourWarden"
+category = "Meetings"
+docs = "README.md"
+description = "Notices Teams calls and meetings, also when Teams is in the background, and gives the meeting time to the customer named in the meeting title."
+api = 2
+capabilities = ["teams.state"]
+platforms = ["windows"]
+permissions = [
+    "Reads which app uses the microphone (Windows privacy registry, read only)",
+    "Reads the titles of Teams windows",
+]
+
+[run]
+module = "plugin.wasm"
+
+[[settings]]
+key = "poll_seconds"
+label = "Check every"
+type = "number"
+description = "How often the microphone is checked, in seconds."
+default = 5
+min = 2
+max = 60
+
+[[settings]]
+key = "count_any_call"
+label = "Count calls without a title"
+type = "bool"
+description = "Also report a meeting when the call window has no recognisable title (the meeting is then named 'Teams call')."
+default = true

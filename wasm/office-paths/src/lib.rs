@@ -7,6 +7,9 @@
 //! `office-paths` plugin. The app reads the path (capability
 //! `office.document`); never the document's content.
 
+// Single-threaded wasm: the poll state lives in statics between calls.
+#![allow(static_mut_refs)]
+
 use hourwarden_plugin as hw;
 use hw::{json, Value};
 
@@ -19,21 +22,30 @@ fn detail(event: &Value, exe: &str, path: &str) -> Value {
     json!({ "hwnd": event["hwnd"], "exe": exe, key: path })
 }
 
-fn on_init(_data: Value) {
+static mut POLL: hw::ForegroundPoll = hw::ForegroundPoll::new();
+static mut POLL_MS: i64 = 3000;
+
+fn on_init(data: Value) {
+    unsafe { POLL_MS = hw::poll_ms(&data["settings"], 3) };
     hw::status("running", "Waiting for Office or Explorer to be in front");
 }
 
 fn on_event(event: Value) {
-    if event["kind"] != "foreground" {
-        return;
+    if event["kind"] == "settings" {
+        unsafe { POLL_MS = hw::poll_ms(&event["settings"], 3) };
+    } else if let Some(fg) = unsafe { POLL.due(&event, POLL_MS) } {
+        on_foreground(&fg);
     }
+}
+
+fn on_foreground(event: &Value) {
     let exe = event["exe"].as_str().unwrap_or("").to_lowercase();
     if !APPS.contains(&hw::app_name(&exe).as_str()) {
         return;
     }
     let answer = hw::capability("office.document", &json!({ "exe": exe, "hwnd": event["hwnd"] }));
     if let Some(path) = answer.as_ref().and_then(|a| a["path"].as_str()).filter(|p| !p.is_empty()) {
-        hw::emit(&json!({ "method": "detail", "params": detail(&event, &exe, path) }));
+        hw::emit(&json!({ "method": "detail", "params": detail(event, &exe, path) }));
         hw::status("running", "Reading document paths");
     }
 }

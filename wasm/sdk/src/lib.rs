@@ -116,6 +116,65 @@ pub fn app_name(exe: &str) -> String {
     exe.strip_suffix(".exe").unwrap_or(&exe).to_string()
 }
 
+/// A number setting as a whole number. The app stores numbers the user
+/// entered as floating point (`30.0`), so `as_i64` alone would miss them.
+pub fn setting_i64(value: &Value) -> Option<i64> {
+    value.as_i64().or_else(|| value.as_f64().filter(|f| f.is_finite()).map(|f| f.round() as i64))
+}
+
+/// Keeps the window in front and says when to check it, as API 1 plugins
+/// polled it: right away when it changes, then every `every_ms` while it
+/// stays. The app forgets a detail after 30 seconds, and some things (the
+/// mail selected in Outlook, a browser's address) change without the title
+/// changing, so a plugin re-checks the same window.
+pub struct ForegroundPoll {
+    event: Option<Value>,
+    now: i64,
+    checked: i64,
+}
+
+impl ForegroundPoll {
+    pub const fn new() -> ForegroundPoll {
+        ForegroundPoll { event: None, now: 0, checked: 0 }
+    }
+
+    /// Takes any event; returns the foreground event to check now, if one is due.
+    pub fn due(&mut self, event: &Value, every_ms: i64) -> Option<Value> {
+        match event["kind"].as_str() {
+            Some("foreground") => {
+                self.event = Some(event.clone());
+                self.checked = self.now;
+                self.event.clone()
+            }
+            Some("tick") => {
+                self.now = event["now"].as_i64().unwrap_or(self.now);
+                if self.event.is_some() && self.now - self.checked >= every_ms {
+                    self.checked = self.now;
+                    return self.event.clone();
+                }
+                None
+            }
+            _ => None,
+        }
+    }
+
+    /// The latest tick time (ms since 1970).
+    pub fn now(&self) -> i64 {
+        self.now
+    }
+}
+
+impl Default for ForegroundPoll {
+    fn default() -> Self {
+        ForegroundPoll::new()
+    }
+}
+
+/// The `poll_seconds` setting in milliseconds, within 1 s to 30 s.
+pub fn poll_ms(settings: &Value, default_seconds: i64) -> i64 {
+    setting_i64(&settings["poll_seconds"]).unwrap_or(default_seconds).clamp(1, 30) * 1000
+}
+
 /// A list setting as strings, or `default` when it is not set.
 pub fn string_list(value: &Value, default: &[&str]) -> Vec<String> {
     match value.as_array() {
@@ -186,6 +245,26 @@ macro_rules! plugin {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn numbers_entered_by_the_user_are_floats() {
+        assert_eq!(setting_i64(&json!(30.0)), Some(30));
+        assert_eq!(setting_i64(&json!(7)), Some(7));
+        assert_eq!(setting_i64(&json!("x")), None);
+        assert_eq!(poll_ms(&json!({ "poll_seconds": 5.0 }), 3), 5000);
+        assert_eq!(poll_ms(&json!({}), 3), 3000);
+    }
+
+    #[test]
+    fn the_window_in_front_is_checked_again() {
+        let mut poll = ForegroundPoll::new();
+        let fg = json!({ "kind": "foreground", "hwnd": 1, "title": "Inbox" });
+        assert!(poll.due(&json!({ "kind": "tick", "now": 1000 }), 3000).is_none(), "nothing in front yet");
+        assert_eq!(poll.due(&fg, 3000), Some(fg.clone()), "at once when it changes");
+        assert!(poll.due(&json!({ "kind": "tick", "now": 2000 }), 3000).is_none());
+        assert_eq!(poll.due(&json!({ "kind": "tick", "now": 4000 }), 3000), Some(fg.clone()), "again while it stays");
+        assert!(poll.due(&json!({ "kind": "tick", "now": 5000 }), 3000).is_none());
+    }
 
     #[test]
     fn domains() {

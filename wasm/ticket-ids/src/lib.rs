@@ -138,30 +138,35 @@ fn ticket_hint(config: &Config, title: &str) -> Option<(String, String)> {
 }
 
 fn on_init(data: Value) {
+    unsafe { POLL_MS = hw::poll_ms(&data["settings"], 2) };
     let broken = configure(&data["settings"]);
     report(&broken);
 }
 
+static mut POLL: hw::ForegroundPoll = hw::ForegroundPoll::new();
+static mut POLL_MS: i64 = 2000;
+
 fn on_event(event: Value) {
-    match event["kind"].as_str() {
-        Some("settings") => {
-            let broken = configure(&event["settings"]);
-            report(&broken);
-        }
-        Some("foreground") => {
-            let Some(config) = (unsafe { CONFIG.as_ref() }) else { return };
-            let exe = event["exe"].as_str().unwrap_or("").to_lowercase();
-            if !config.apps.contains(&app_name(&exe)) {
-                return;
-            }
-            if let Some((id, words)) = ticket_hint(config, event["title"].as_str().unwrap_or("")) {
-                hw::emit(&json!({
-                    "method": "detail",
-                    "params": { "hwnd": event["hwnd"], "exe": exe, "ticket_id": id, "ticket_title": words }
-                }));
-            }
-        }
-        _ => {}
+    if event["kind"] == "settings" {
+        unsafe { POLL_MS = hw::poll_ms(&event["settings"], 2) };
+        let broken = configure(&event["settings"]);
+        report(&broken);
+    } else if let Some(fg) = unsafe { POLL.due(&event, POLL_MS) } {
+        on_foreground(&fg);
+    }
+}
+
+fn on_foreground(event: &Value) {
+    let Some(config) = (unsafe { CONFIG.as_ref() }) else { return };
+    let exe = event["exe"].as_str().unwrap_or("").to_lowercase();
+    if !config.apps.contains(&app_name(&exe)) {
+        return;
+    }
+    if let Some((id, words)) = ticket_hint(config, event["title"].as_str().unwrap_or("")) {
+        hw::emit(&json!({
+            "method": "detail",
+            "params": { "hwnd": event["hwnd"], "exe": exe, "ticket_id": id, "ticket_title": words }
+        }));
     }
 }
 

@@ -30,10 +30,10 @@ static mut STATE: State = State { days_back: 7, refresh_ms: 15 * 60_000, skip_fr
 
 fn configure(settings: &Value) {
     let s = unsafe { &mut STATE };
-    s.days_back = settings["days_back"].as_i64().unwrap_or(7).clamp(0, 60);
-    s.refresh_ms = settings["refresh_minutes"].as_i64().unwrap_or(15).clamp(1, 1440) * 60_000;
+    s.days_back = hw::setting_i64(&settings["days_back"]).unwrap_or(7).clamp(0, 60);
+    s.refresh_ms = hw::setting_i64(&settings["refresh_minutes"]).unwrap_or(15).clamp(1, 1440) * 60_000;
     s.skip_free = settings["skip_free"].as_bool().unwrap_or(true);
-    s.max_attendees = settings["max_attendees"].as_i64().unwrap_or(50).clamp(1, 500);
+    s.max_attendees = hw::setting_i64(&settings["max_attendees"]).unwrap_or(50).clamp(1, 500);
     s.ignore = hw::string_list(&settings["ignore_domains"], &[]);
     // Read again with the new settings.
     s.read_at = None;

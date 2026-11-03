@@ -15,6 +15,7 @@ use hw::{json, Value};
 const DAY_MS: i64 = 24 * 60 * 60 * 1000;
 
 struct State {
+    poll_ms: i64,
     max_recipients: i64,
     count_mails: bool,
     count_every_ms: i64,
@@ -27,6 +28,7 @@ struct State {
 }
 
 static mut STATE: State = State {
+    poll_ms: 3000,
     max_recipients: 30,
     count_mails: true,
     count_every_ms: 5 * 60_000,
@@ -39,10 +41,11 @@ static mut STATE: State = State {
 
 fn configure(settings: &Value) {
     let s = unsafe { &mut STATE };
-    s.max_recipients = settings["max_recipients"].as_i64().unwrap_or(30).clamp(1, 500);
+    s.poll_ms = hw::poll_ms(settings, 3);
+    s.max_recipients = hw::setting_i64(&settings["max_recipients"]).unwrap_or(30).clamp(1, 500);
     s.count_mails = settings["count_mails"].as_bool().unwrap_or(true);
-    s.count_every_ms = settings["count_every_minutes"].as_i64().unwrap_or(5).clamp(1, 1440) * 60_000;
-    s.count_days = settings["count_days"].as_i64().unwrap_or(7).clamp(1, 60);
+    s.count_every_ms = hw::setting_i64(&settings["count_every_minutes"]).unwrap_or(5).clamp(1, 1440) * 60_000;
+    s.count_days = hw::setting_i64(&settings["count_days"]).unwrap_or(7).clamp(1, 60);
     s.ignore = hw::string_list(&settings["ignore_domains"], &[]);
 }
 
@@ -123,12 +126,17 @@ fn on_init(data: Value) {
     hw::status("running", "Waiting for Outlook to be in front");
 }
 
+static mut POLL: hw::ForegroundPoll = hw::ForegroundPoll::new();
+
 fn on_event(event: Value) {
     match event["kind"].as_str() {
-        Some("foreground") => on_foreground(&event),
         Some("tick") => on_tick(event["now"].as_i64().unwrap_or(0)),
-        Some("settings") => configure(&event["settings"]),
+        Some("settings") => return configure(&event["settings"]),
         _ => {}
+    }
+    // The selected mail changes without the window title changing.
+    if let Some(fg) = unsafe { POLL.due(&event, STATE.poll_ms) } {
+        on_foreground(&fg);
     }
 }
 

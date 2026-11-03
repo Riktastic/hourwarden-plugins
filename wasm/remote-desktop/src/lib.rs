@@ -12,6 +12,9 @@
 //! Devolutions PowerShell module, which itself needs PowerShell; folders come
 //! from the tab names instead.
 
+// Single-threaded wasm: the poll state lives in statics between calls.
+#![allow(static_mut_refs)]
+
 use hourwarden_plugin as hw;
 use hw::{json, Value};
 
@@ -50,18 +53,27 @@ fn rdm_detail(event: &Value, exe: &str) -> Option<Value> {
     Some(json!({ "hwnd": event["hwnd"], "exe": exe, "document": name, "remote_folder": folder, "remote_server": server }))
 }
 
-fn on_init(_data: Value) {
+static mut POLL: hw::ForegroundPoll = hw::ForegroundPoll::new();
+static mut POLL_MS: i64 = 3000;
+
+fn on_init(data: Value) {
+    unsafe { POLL_MS = hw::poll_ms(&data["settings"], 3) };
     hw::status("running", "Waiting for a remote desktop window");
 }
 
 fn on_event(event: Value) {
-    if event["kind"] != "foreground" {
-        return;
+    if event["kind"] == "settings" {
+        unsafe { POLL_MS = hw::poll_ms(&event["settings"], 3) };
+    } else if let Some(fg) = unsafe { POLL.due(&event, POLL_MS) } {
+        on_foreground(&fg);
     }
+}
+
+fn on_foreground(event: &Value) {
     let exe = event["exe"].as_str().unwrap_or("").to_lowercase();
     let app = hw::app_name(&exe);
     let detail = if RDM.contains(&app.as_str()) {
-        let d = rdm_detail(&event, &exe);
+        let d = rdm_detail(event, &exe);
         hw::status("running", "Reading Remote Desktop Manager tabs");
         d
     } else if app == "mstsc" {
