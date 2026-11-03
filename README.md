@@ -32,12 +32,16 @@ index.json.sig          its Ed25519 signature
 plugins/<id>/           one folder per plugin: plugin.toml plus its files
 shared/protocol.ps1     protocol helpers, copied into PowerShell plugins
 docs/protocol.md        how plugins and HourWarden talk
+docs/creating-plugins.md  step-by-step guide to a new plugin
 test/<id>.tests.ps1     unit tests per plugin
 test/Run-Tests.ps1      runs all unit tests
 test/Test-Plugin.ps1    runs a plugin without the app and prints what it sends
 ```
 
 ## Changing or adding a plugin
+
+New to plugins? [docs/creating-plugins.md](docs/creating-plugins.md) builds one step by step, from an empty folder to the store.
+
 
 1. Edit or add `plugins/<id>/` and raise `version` in `plugin.toml`. Keep its `README.md` (named by `docs` in `plugin.toml`) up to date: the app shows it in its help screen. Start it with a `# Title`; describe what the plugin does, how to set it up, what it reads, and its settings.
 2. Keep the logic in functions and end the setup with `if ($script:testMode) { return }` before `Wait-Initialize`, so tests can load the functions without starting the plugin.
