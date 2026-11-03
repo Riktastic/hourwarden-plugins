@@ -1,0 +1,11 @@
+[package]
+name = "hourwarden-plugin"
+version = "0.1.0"
+edition = "2021"
+description = "SDK for HourWarden WebAssembly plugins (plugin API 2)"
+
+[lib]
+name = "hourwarden_plugin"
+
+[dependencies]
+serde_json = "1"

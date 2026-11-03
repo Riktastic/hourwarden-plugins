@@ -1,0 +1,13 @@
+[package]
+name = "ticket-ids"
+version = "0.3.0"
+edition = "2021"
+description = "Ticket IDs from window titles, as a HourWarden WebAssembly plugin"
+
+[lib]
+name = "ticket_ids"
+crate-type = ["cdylib"]
+
+[dependencies]
+hourwarden-plugin = { path = "../sdk" }
+serde_json = "1"
