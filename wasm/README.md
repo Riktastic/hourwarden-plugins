@@ -38,14 +38,29 @@ cargo run --example wasm_run -- path/to/<id>.wasm "A window title" <exe>
 
 ## Migration status
 
-Ported to API 2 (6 of 13): `ticket-ids`, `terminal-ssh`, `remote-workspaces`,
-`admin-tools`, `networks`, `vscode-git`. What they read from the system they
-ask the app for through capabilities (see the catalogue in
-`docs/plugins/protocol-wasm.md` in `hourwarden-core`).
+All 13 plugins are ported to API 2. What they read from the system they ask
+the app for through capabilities (see the catalogue in
+`docs/plugins/protocol-wasm.md` in `hourwarden-core`):
 
-Still PowerShell (API 1) until the Windows capabilities they need exist in
-the desktop app: `office-paths`, `web-addresses`, `remote-desktop`, `outlook`,
-`outlook-calendar`, `teams-meetings` (COM and UI Automation) and
-`file-changes` (folder watching). On Windows, `networks` and the `ssh`
-fallback of `terminal-ssh` also wait for the app's Windows implementation of
-`net.connections` and `process.ssh_commands`.
+| Plugin | Capabilities |
+|---|---|
+| `admin-tools`, `remote-workspaces` | none (window title only) |
+| `ticket-ids` | none (window title only) |
+| `terminal-ssh` | `hostname`, `process.ssh_commands` |
+| `networks` | `net.connections` |
+| `vscode-git` | `vscode.workspaces`, `git.config` |
+| `file-changes` | `files.changes` |
+| `office-paths` | `office.document` |
+| `web-addresses` | `browser.address` |
+| `remote-desktop` | `ui.selected_tab`, `rdp.server` |
+| `outlook` | `outlook.current_item`, `outlook.mail_since` |
+| `outlook-calendar` | `outlook.calendar` |
+| `teams-meetings` | `teams.state` |
+
+One difference: `remote-desktop` no longer reads Remote Desktop Manager
+entries through the Devolutions PowerShell module (that needs PowerShell);
+folders come from the tab names and the server from the RDP connection, as
+the PowerShell version did when the module was not installed.
+
+The PowerShell plugins in `plugins/` (API 1) stay what the released app
+runs until the app loads WebAssembly plugins.

@@ -110,6 +110,50 @@ pub fn capability(name: &str, arg: &Value) -> Option<Value> {
     }
 }
 
+/// A program name without `.exe`, in lower case: "OUTLOOK.EXE" -> "outlook".
+pub fn app_name(exe: &str) -> String {
+    let exe = exe.to_lowercase();
+    exe.strip_suffix(".exe").unwrap_or(&exe).to_string()
+}
+
+/// A list setting as strings, or `default` when it is not set.
+pub fn string_list(value: &Value, default: &[&str]) -> Vec<String> {
+    match value.as_array() {
+        Some(a) => a.iter().filter_map(|v| v.as_str().map(str::to_string)).collect(),
+        None => default.iter().map(|s| s.to_string()).collect(),
+    }
+}
+
+/// The domain of a mail address in lower case: "rik@Contoso.nl" -> "contoso.nl".
+pub fn mail_domain(address: &str) -> Option<String> {
+    let (_, domain) = address.trim().rsplit_once('@')?;
+    let tld = domain.rsplit_once('.')?.1;
+    let valid = !domain.is_empty()
+        && domain.bytes().all(|c| c.is_ascii_alphanumeric() || c == b'.' || c == b'-')
+        && tld.len() >= 2
+        && tld.bytes().all(|c| c.is_ascii_alphabetic());
+    valid.then(|| domain.to_lowercase())
+}
+
+/// Whether `domain` is one of `ignore` (written with or without "@"/"."),
+/// or a subdomain of one.
+pub fn domain_ignored(domain: &str, ignore: &[String]) -> bool {
+    ignore.iter().any(|i| {
+        let i = i.trim().to_lowercase();
+        let i = i.trim_start_matches(['@', '.']);
+        !i.is_empty() && (domain == i || domain.ends_with(&format!(".{i}")))
+    })
+}
+
+/// The unique mail domains of `addresses`, sorted, leaving out ignored ones.
+pub fn mail_domains<'a>(addresses: impl IntoIterator<Item = &'a str>, ignore: &[String]) -> Vec<String> {
+    let mut out: Vec<String> =
+        addresses.into_iter().filter_map(mail_domain).filter(|d| !domain_ignored(d, ignore)).collect();
+    out.sort();
+    out.dedup();
+    out
+}
+
 /// Exports the ABI entry points the app calls, wiring them to the plugin's
 /// handlers. `event` is required; `init` (called once, with settings and
 /// customer folders) is optional.
@@ -137,4 +181,20 @@ macro_rules! plugin {
             }
         )?
     };
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn domains() {
+        assert_eq!(mail_domain("Rik@Contoso.NL"), Some("contoso.nl".into()));
+        assert_eq!(mail_domain("/O=EXCHANGE/OU=FIRST/CN=RIK"), None);
+        assert_eq!(mail_domain("a@localhost"), None);
+        let ignore = vec!["@hourwarden.com".to_string()];
+        assert!(domain_ignored("mail.hourwarden.com", &ignore));
+        assert!(!domain_ignored("nothourwarden.com", &ignore));
+        assert_eq!(mail_domains(["b@x.nl", "a@x.nl", "me@hourwarden.com", "c@y.com"], &ignore), vec!["x.nl", "y.com"]);
+    }
 }

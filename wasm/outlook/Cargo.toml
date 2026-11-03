@@ -1,0 +1,13 @@
+[package]
+name = "outlook"
+version = "0.3.0"
+edition = "2021"
+description = "Outlook subject, mail domains and mail counts, as a HourWarden WebAssembly plugin"
+
+[lib]
+name = "outlook"
+crate-type = ["cdylib"]
+
+[dependencies]
+hourwarden-plugin = { path = "../sdk" }
+serde_json = "1"

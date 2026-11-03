@@ -1,0 +1,13 @@
+[package]
+name = "file-changes"
+version = "0.3.0"
+edition = "2021"
+description = "Saved files in customer folders, as a HourWarden WebAssembly plugin"
+
+[lib]
+name = "file_changes"
+crate-type = ["cdylib"]
+
+[dependencies]
+hourwarden-plugin = { path = "../sdk" }
+serde_json = "1"
