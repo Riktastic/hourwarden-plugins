@@ -30,6 +30,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cf8baf1c55e62ffcace7a9f06f4bd9cd3f0c4beb022d3b367256b91b87513d98"
 
 [[package]]
+name = "networks"
+version = "0.3.0"
+dependencies = [
+ "hourwarden-plugin",
+ "serde_json",
+]
+
+[[package]]
 name = "proc-macro2"
 version = "1.0.107"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -46,6 +54,12 @@ checksum = "1fbf4db142a473a8d80c26bbf18454ed458bf8d26c8219c331daecfdbd079001"
 dependencies = [
  "proc-macro2",
 ]
+
+[[package]]
+name = "regex-lite"
+version = "0.1.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cab834c73d247e67f4fae452806d17d3c7501756d98c8808d7c9c7aa7d18f973"
 
 [[package]]
 name = "remote-workspaces"
@@ -121,6 +135,7 @@ name = "ticket-ids"
 version = "0.3.0"
 dependencies = [
  "hourwarden-plugin",
+ "regex-lite",
  "serde_json",
 ]
 
@@ -129,6 +144,15 @@ name = "unicode-ident"
 version = "1.0.27"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a2c754d6c33795a1c324727428e5a7dedb5b06195f9890bdbcba760d3e246563"
+
+[[package]]
+name = "vscode-git"
+version = "0.3.0"
+dependencies = [
+ "hourwarden-plugin",
+ "regex-lite",
+ "serde_json",
+]
 
 [[package]]
 name = "zmij"

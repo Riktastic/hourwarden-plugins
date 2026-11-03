@@ -4,10 +4,10 @@
 //! leaves the computer.
 //!
 //! This is the WebAssembly port (plugin API 2) of the PowerShell `terminal-ssh`
-//! plugin. It carries the title-based detection. The PowerShell version also
-//! looked up the `ssh` process a terminal started when the title said nothing;
-//! that needs a process-list capability from the app and comes with the native
-//! capabilities milestone.
+//! plugin. When the title says nothing (a custom prompt, a tab title), it asks
+//! the app for the command lines of the `ssh` processes started from that
+//! terminal (capability `process.ssh_commands`); one server among them names
+//! the session, several (other tabs) do not.
 
 // Single-threaded wasm: the settings statics are written once in on_init.
 #![allow(static_mut_refs)]
@@ -34,6 +34,11 @@ const SUFFIX_APPS: &[&str] = &[
 
 static mut APPS: Vec<String> = Vec::new();
 static mut LOCAL: Vec<String> = Vec::new();
+/// The latest tick time (ms), and the last process lookup: window, time, server.
+static mut NOW: i64 = 0;
+static mut PROC: Option<(i64, i64, Option<String>)> = None;
+/// Process lookups take a moment: once per window every 10 seconds.
+const PROC_EVERY_MS: i64 = 10_000;
 
 fn app_name(exe: &str) -> &str {
     exe.strip_suffix(".exe").unwrap_or(exe)
@@ -196,6 +201,27 @@ fn get_ssh_host(title: &str, local: &[String]) -> Option<String> {
     host_from_prompt(t, local).or_else(|| host_bare(t, local))
 }
 
+/// The server in one `ssh` command line (`/usr/bin/ssh -p 22 admin@web01`).
+fn host_from_command(line: &str, local: &[String]) -> Option<String> {
+    let line = line.replace('"', "");
+    host_from_ssh_args(find_ssh_args(&line)?, local)
+}
+
+/// The one server among the `ssh` commands started from terminal `pid`, if
+/// there is exactly one.
+fn host_from_processes(pid: u64, local: &[String]) -> Option<String> {
+    let result = hw::capability("process.ssh_commands", &json!({ "pid": pid }))?;
+    let mut hosts: Vec<String> = Vec::new();
+    for line in result["commands"].as_array()?.iter().filter_map(Value::as_str) {
+        if let Some(h) = host_from_command(line, local) {
+            if !hosts.contains(&h) {
+                hosts.push(h);
+            }
+        }
+    }
+    (hosts.len() == 1).then(|| hosts.remove(0))
+}
+
 fn string_list(v: &Value, default: &[&str]) -> Vec<String> {
     match v.as_array() {
         Some(a) => a.iter().filter_map(|x| x.as_str().map(str::to_string)).collect(),
@@ -204,7 +230,11 @@ fn string_list(v: &Value, default: &[&str]) -> Vec<String> {
 }
 
 fn on_init(data: Value) {
-    let settings = &data["settings"];
+    configure(&data["settings"]);
+    hw::status("running", "Watching terminal titles for SSH sessions");
+}
+
+fn configure(settings: &Value) {
     let apps = string_list(&settings["apps"], DEFAULT_APPS);
     let mut local = string_list(&settings["local_hosts"], &[]);
     // The app can name this computer so its own prompt is not a remote server.
@@ -215,20 +245,37 @@ fn on_init(data: Value) {
         APPS = apps;
         LOCAL = local;
     }
-    hw::status("running", "Watching terminal titles for SSH sessions");
 }
 
 fn on_event(event: Value) {
-    if event["kind"] != "foreground" {
-        return;
+    match event["kind"].as_str() {
+        Some("tick") => unsafe { NOW = event["now"].as_i64().unwrap_or(0) },
+        Some("settings") => configure(&event["settings"]),
+        Some("foreground") => on_foreground(&event),
+        _ => {}
     }
+}
+
+fn on_foreground(event: &Value) {
     let exe = event["exe"].as_str().unwrap_or("").to_lowercase();
     let apps = unsafe { &APPS };
     if !apps.iter().any(|a| app_name(&a.to_lowercase()) == app_name(&exe)) {
         return;
     }
     let title = event["title"].as_str().unwrap_or("");
-    if let Some(server) = get_ssh_host(title, unsafe { &LOCAL }) {
+    let local = unsafe { &LOCAL };
+    let mut server = get_ssh_host(title, local);
+    if server.is_none() {
+        if let (Some(pid), Some(hwnd)) = (event["pid"].as_u64().filter(|p| *p > 0), event["hwnd"].as_i64()) {
+            let now = unsafe { NOW };
+            let fresh = unsafe { &PROC }.as_ref().is_some_and(|(h, at, _)| *h == hwnd && now - at < PROC_EVERY_MS);
+            if !fresh {
+                unsafe { PROC = Some((hwnd, now, host_from_processes(pid, local))) };
+            }
+            server = unsafe { &PROC }.as_ref().and_then(|(_, _, s)| s.clone());
+        }
+    }
+    if let Some(server) = server {
         hw::emit(&json!({
             "method": "detail",
             "params": { "hwnd": event["hwnd"], "exe": exe, "remote_server": server, "document": server }
@@ -262,6 +309,14 @@ mod tests {
     fn bare_and_suffix() {
         assert_eq!(host("web01.contoso.nl - PuTTY"), Some("web01.contoso.nl".into()));
         assert_eq!(host("db01.example.com — SecureCRT"), Some("db01.example.com".into()));
+    }
+
+    #[test]
+    fn ssh_process_command_lines() {
+        let local = ["mylaptop".to_string()];
+        assert_eq!(host_from_command("/usr/bin/ssh -p 2222 admin@web01.contoso.nl", &local), Some("web01.contoso.nl".into()));
+        assert_eq!(host_from_command(r#""C:\Windows\System32\OpenSSH\ssh.exe" -i key deploy@db01"#, &local), Some("db01".into()));
+        assert_eq!(host_from_command("ssh mylaptop", &local), None);
     }
 
     #[test]

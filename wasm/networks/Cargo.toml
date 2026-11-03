@@ -1,0 +1,13 @@
+[package]
+name = "networks"
+version = "0.3.0"
+edition = "2021"
+description = "Wi-Fi and VPN networks, as a HourWarden WebAssembly plugin"
+
+[lib]
+name = "networks"
+crate-type = ["cdylib"]
+
+[dependencies]
+hourwarden-plugin = { path = "../sdk" }
+serde_json = "1"

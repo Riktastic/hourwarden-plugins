@@ -11,3 +11,5 @@ crate-type = ["cdylib"]
 [dependencies]
 hourwarden-plugin = { path = "../sdk" }
 serde_json = "1"
+# Users write their own ticket patterns; regex-lite keeps the module small.
+regex-lite = "0.1"

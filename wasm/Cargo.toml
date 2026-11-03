@@ -8,7 +8,7 @@
 # copied into plugins/<id>/plugin.wasm by build-index.
 [workspace]
 resolver = "2"
-members = ["sdk", "ticket-ids", "terminal-ssh", "remote-workspaces", "admin-tools"]
+members = ["sdk", "ticket-ids", "terminal-ssh", "remote-workspaces", "admin-tools", "networks", "vscode-git"]
 
 [profile.release]
 opt-level = "s"
