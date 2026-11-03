@@ -1,0 +1,26 @@
+# Checks every dependency in Cargo.lock against the RustSec advisory
+# database: daily, on every push to main and by hand. A known vulnerability
+# fails the run, which makes GitHub email you; "unmaintained" and similar
+# notices are listed without failing.
+name: Audit
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "23 5 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-audit
+      - name: No dependency with a known vulnerability
+        run: cargo audit --file wasm/Cargo.lock
