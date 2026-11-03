@@ -38,5 +38,13 @@ cargo run --example wasm_run -- path/to/<id>.wasm "A window title" <exe>
 
 ## Migration status
 
-Ported to API 2: `ticket-ids`. The rest are still the PowerShell plugins in
-`plugins/` (API 1) until they are ported here.
+Ported to API 2: `ticket-ids`, `terminal-ssh`, `remote-workspaces`,
+`admin-tools` — the plugins that work from the window title alone. The rest
+are still the PowerShell plugins in `plugins/` (API 1) until they are ported
+here; the ones that read the system (Outlook, Teams, networks, file changes,
+Office paths, VS Code git, web addresses) wait for the host capabilities that
+replace their OS access.
+
+`terminal-ssh` carries its title-based detection. The PowerShell version also
+inspected the `ssh` process a terminal started when the title said nothing;
+that returns with the process-list host capability.

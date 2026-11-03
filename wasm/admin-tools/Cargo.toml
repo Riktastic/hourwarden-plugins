@@ -1,0 +1,13 @@
+[package]
+name = "admin-tools"
+version = "0.3.0"
+edition = "2021"
+description = "Servers, databases and domains in admin-tool titles, as a HourWarden WebAssembly plugin"
+
+[lib]
+name = "admin_tools"
+crate-type = ["cdylib"]
+
+[dependencies]
+hourwarden-plugin = { path = "../sdk" }
+serde_json = "1"

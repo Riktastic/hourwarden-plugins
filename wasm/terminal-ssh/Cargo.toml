@@ -1,0 +1,13 @@
+[package]
+name = "terminal-ssh"
+version = "0.4.0"
+edition = "2021"
+description = "SSH sessions in terminal titles, as a HourWarden WebAssembly plugin"
+
+[lib]
+name = "terminal_ssh"
+crate-type = ["cdylib"]
+
+[dependencies]
+hourwarden-plugin = { path = "../sdk" }
+serde_json = "1"
