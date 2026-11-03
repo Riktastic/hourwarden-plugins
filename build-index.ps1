@@ -3,9 +3,9 @@
 # after changing a plugin; the app refuses files that do not match.
 #
 # When the signing key exists, index.json is signed (index.json.sig) with
-# hourwarden-sign from the HourWarden repository next to this one. Make a
+# hourwarden-sign from the hourwarden-core repository next to this one. Make a
 # key once with:
-#   cargo run -q --manifest-path ..\HourWarden\Cargo.toml -p hourwarden-core --bin hourwarden-sign -- keygen "$env:USERPROFILE\.hourwarden\store-signing.key"
+#   cargo run -q --manifest-path ..\hourwarden-core\Cargo.toml -p hourwarden-core --bin hourwarden-sign -- keygen "$env:USERPROFILE\.hourwarden\store-signing.key"
 #
 #   powershell -ExecutionPolicy Bypass -File build-index.ps1
 
@@ -47,7 +47,7 @@ Write-Host "index.json written with $($entries.Count) plugins"
 
 $signature = Join-Path $root 'index.json.sig'
 if (Test-Path $SigningKey) {
-    $manifest = Join-Path $root '..\HourWarden\Cargo.toml'
+    $manifest = Join-Path $root '..\hourwarden-core\Cargo.toml'
     & cargo run -q --manifest-path $manifest -p hourwarden-core --bin hourwarden-sign -- sign $SigningKey (Join-Path $root 'index.json')
     if ($LASTEXITCODE -ne 0) { throw 'signing failed' }
 } else {
