@@ -54,3 +54,7 @@ New to plugins? [docs/creating-plugins.md](docs/creating-plugins.md) builds one 
 Every plugin needs a test file and documentation: `Run-Tests.ps1` fails when either is missing. Keep plugin files ASCII; Windows PowerShell 5.1 reads files without a byte order mark as ANSI.
 
 See [docs/protocol.md](docs/protocol.md) for the messages and the manifest.
+
+## Releasing plugins
+
+[docs/releasing-the-store.md](docs/releasing-the-store.md): the two stores (PowerShell and WebAssembly), how a plugin update reaches people, and the signing key.
