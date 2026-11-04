@@ -1,149 +1,136 @@
 {
-    "name":  "HourWarden plugins",
-    "api":  1,
-    "plugins":  [
-                    {
-                        "id":  "admin-tools",
-                        "version":  "0.2.1",
-                        "path":  "plugins/admin-tools",
-                        "files":  {
-                                      "admin-tools.ps1":  "606bead4cc82ac09427f36bec80dbec872cc1129b932f2a98e5c92a8e05dd96e",
-                                      "plugin.toml":  "295c7b4819dad53f09854ececf072d5c11a2f1c9d7d110be6d1959c04f23a2a5",
-                                      "protocol.ps1":  "92e871d84b18112423131fe446c620c95343ec3979b5227415246da1f097f2d7",
-                                      "README.md":  "387f23b2a09b609ca514fbb7da6e884c61c4fafa5bfe97e6948bfb88772e8d1e"
-                                  }
-                    },
-                    {
-                        "id":  "file-changes",
-                        "version":  "0.2.1",
-                        "path":  "plugins/file-changes",
-                        "files":  {
-                                      "file-changes.ps1":  "80483bfd49cdb84f584facbad5a1c5eac672c6e0df399808ca3c94660e5b2462",
-                                      "plugin.toml":  "3f4cbfa192d1d35185c87b0ee6699525e486c6eccb1e68422ea1dd339effd15d",
-                                      "protocol.ps1":  "92e871d84b18112423131fe446c620c95343ec3979b5227415246da1f097f2d7",
-                                      "README.md":  "ccf4420edee027911bad135f2e4721bba3d6020ad6193ee81a909bcb935033bb"
-                                  }
-                    },
-                    {
-                        "id":  "networks",
-                        "version":  "0.2.1",
-                        "path":  "plugins/networks",
-                        "files":  {
-                                      "networks.ps1":  "e36e7bde7bdedba12c1c2b93d932a832ed81c44de3c16f26c63478444d1a7d5a",
-                                      "plugin.toml":  "59ad4e22343f99ff48f4b7c272a1c80fd52c43994459d626338b4b2de2597628",
-                                      "protocol.ps1":  "92e871d84b18112423131fe446c620c95343ec3979b5227415246da1f097f2d7",
-                                      "README.md":  "7a48a3337d6a9bbf6441cc9b0856f2df939832a5d7f00e386b8198b58aba30a6"
-                                  }
-                    },
-                    {
-                        "id":  "office-paths",
-                        "version":  "0.1.4",
-                        "path":  "plugins/office-paths",
-                        "files":  {
-                                      "office-paths.ps1":  "3c180bc538519c8db59187745a4ac3f9931133dc44f276890eb2b7c5b22e2711",
-                                      "plugin.toml":  "81878be42fc25c1f271f5725d39060d9539e0c302e12fcf82d7c129cc9004f91",
-                                      "protocol.ps1":  "92e871d84b18112423131fe446c620c95343ec3979b5227415246da1f097f2d7",
-                                      "README.md":  "ca4db894545ae686f0863eb6613a512037f8e7efbfa0141193ac0dedb6954be5"
-                                  }
-                    },
-                    {
-                        "id":  "outlook",
-                        "version":  "0.2.4",
-                        "path":  "plugins/outlook",
-                        "files":  {
-                                      "outlook.ps1":  "5a06fc5f28ae0f8b585db97fe2ffb58f6001ffc55b78a7bd06e4a74248a1a941",
-                                      "plugin.toml":  "d2b3935f2c65cc5ed2d8c1cc4c9c7ea3c6ea90c30d29c9a9b0715185602b11ed",
-                                      "protocol.ps1":  "92e871d84b18112423131fe446c620c95343ec3979b5227415246da1f097f2d7",
-                                      "README.md":  "f3dfc9630f5f58f31c6b5ad045142671e27bfa28f59f28b4c3d3312505be20d1"
-                                  }
-                    },
-                    {
-                        "id":  "outlook-calendar",
-                        "version":  "0.1.3",
-                        "path":  "plugins/outlook-calendar",
-                        "files":  {
-                                      "outlook-calendar.ps1":  "c33b7bb4951041a31922178302d7c054e27c3106ceaf9ae356e4e852b85b4b3a",
-                                      "plugin.toml":  "87a107b54fe4fa85c6d911e579d5eedbaef9806ebe9a2c2fc458dff56058dd08",
-                                      "protocol.ps1":  "92e871d84b18112423131fe446c620c95343ec3979b5227415246da1f097f2d7",
-                                      "README.md":  "e6cde2a9c27b66ec0bd22dfb8fa5ab3af08caf11f5503bd228378f75eeb94cb6"
-                                  }
-                    },
-                    {
-                        "id":  "remote-desktop",
-                        "version":  "0.1.4",
-                        "path":  "plugins/remote-desktop",
-                        "files":  {
-                                      "plugin.toml":  "1ef350b016cbd110075e4d5ed6ef59bab22d29a100112f6a019e3460d18a2ad9",
-                                      "protocol.ps1":  "92e871d84b18112423131fe446c620c95343ec3979b5227415246da1f097f2d7",
-                                      "README.md":  "d4a635cab0ce09fd552f9604d761c59bf7d78a7ce2724fdb7f2eb06b3b44ab73",
-                                      "remote-desktop.ps1":  "fb64ff4ab3b82b75e8dcbff263de8c5a3bd1965c20ec1d2dbb875d7d0301100d"
-                                  }
-                    },
-                    {
-                        "id":  "remote-workspaces",
-                        "version":  "0.2.1",
-                        "path":  "plugins/remote-workspaces",
-                        "files":  {
-                                      "plugin.toml":  "eda5d4a688419a8b0d9f2ae167717a106e381f85eb8c070747347d8cb06d17bb",
-                                      "protocol.ps1":  "92e871d84b18112423131fe446c620c95343ec3979b5227415246da1f097f2d7",
-                                      "README.md":  "a84afb0c86d2299166c2554e22975fe0b2a7c15c3516ee253f98dd18d652702c",
-                                      "remote-workspaces.ps1":  "27e7577c3b1eccfe29bfa974d6ef0cc3eea48724c7b8d0d669968c2fd9d52ea8"
-                                  }
-                    },
-                    {
-                        "id":  "teams-meetings",
-                        "version":  "0.1.4",
-                        "path":  "plugins/teams-meetings",
-                        "files":  {
-                                      "plugin.toml":  "ac88708c8100f5215dd8e00881c86aec4ca8eda1ce4670e3d8d33329761b3aec",
-                                      "protocol.ps1":  "92e871d84b18112423131fe446c620c95343ec3979b5227415246da1f097f2d7",
-                                      "README.md":  "77282f515ba9c98e641335bc75914e00138e38aced99a0befd6c9b208ef31e47",
-                                      "teams-meetings.ps1":  "6944092d931992c12374d1d4a9a6324ed116021324b7fa061f2d614d3d35691e"
-                                  }
-                    },
-                    {
-                        "id":  "terminal-ssh",
-                        "version":  "0.3.0",
-                        "path":  "plugins/terminal-ssh",
-                        "files":  {
-                                      "plugin.toml":  "08307f343de114c1199df7cf43d9fc1b30fc96070bc056cdee97c8f32b27020d",
-                                      "protocol.ps1":  "92e871d84b18112423131fe446c620c95343ec3979b5227415246da1f097f2d7",
-                                      "README.md":  "86186414b36b9caf282f30b4cd67ae957e16c3d61f54e4b6f9c3ad037289fce7",
-                                      "terminal-ssh.ps1":  "6b88d94df34421f80eebc6f6a7c48348284aa3585ba34eaa2da8055277c15e86"
-                                  }
-                    },
-                    {
-                        "id":  "ticket-ids",
-                        "version":  "0.2.1",
-                        "path":  "plugins/ticket-ids",
-                        "files":  {
-                                      "plugin.toml":  "f9755503b592338f03dfcf74f773a8dfc397aa8328095cae04460c6622107d50",
-                                      "protocol.ps1":  "92e871d84b18112423131fe446c620c95343ec3979b5227415246da1f097f2d7",
-                                      "README.md":  "d221a72d2cb3ea8bf7c9378f8c984cdce0726457dfbc384bd26cb9c7e2dd0334",
-                                      "ticket-ids.ps1":  "25aef51369390ba016cd91846f54dc6040a2b054f9d458d6a68b2f1adeeeddf4"
-                                  }
-                    },
-                    {
-                        "id":  "vscode-git",
-                        "version":  "0.2.1",
-                        "path":  "plugins/vscode-git",
-                        "files":  {
-                                      "plugin.toml":  "0a5b528d397e11c4cb46adad1ae44222aa8dfffc7e2497583e82add15059b887",
-                                      "protocol.ps1":  "92e871d84b18112423131fe446c620c95343ec3979b5227415246da1f097f2d7",
-                                      "README.md":  "fffd95e1627378d307813060285b3456dbda80dfb9349e35498d1254ad504d0d",
-                                      "vscode-git.ps1":  "9623b849e86fb3b4b93dcc41a134fe9732c886a9c780df345734dde8d236e245"
-                                  }
-                    },
-                    {
-                        "id":  "web-addresses",
-                        "version":  "0.4.1",
-                        "path":  "plugins/web-addresses",
-                        "files":  {
-                                      "plugin.toml":  "a13670c49aa71bb52805e4976ab75033b7c489309cf579d47ed9e2c77ae61685",
-                                      "protocol.ps1":  "92e871d84b18112423131fe446c620c95343ec3979b5227415246da1f097f2d7",
-                                      "README.md":  "9893189ef8864cbdce0629b60ce4dc75730d638f2c23887fec14c65d5fe31cc7",
-                                      "web-addresses.ps1":  "97f518f260e658ce3469dcaa874ebe3ac0acaa70c8d7ee6626fed84425f6c8f7"
-                                  }
-                    }
-                ]
+  "name": "HourWarden plugins",
+  "api": 2,
+  "plugins": [
+    {
+      "id": "admin-tools",
+      "version": "0.3.0",
+      "path": "plugins/admin-tools",
+      "files": {
+        "README.md": "a2e38c7ec88d1bcc24ee39b9c3fb807907a8a702a27e5a2c2b91f338add90422",
+        "plugin.toml": "e44e78beb85a8b05fe66165beed3037e118f3c00a58c98c7a6bda8e6464f84b7",
+        "plugin.wasm": "fe2d1bda6822a435da4bc4397e7a4c0bdb48ebb5d901adb4750a46c2f4346adf"
+      }
+    },
+    {
+      "id": "file-changes",
+      "version": "0.3.0",
+      "path": "plugins/file-changes",
+      "files": {
+        "README.md": "bb51990f30eb9087ad65bda7e5555e1fd38c53674d357a74b8ea4cfca04ec4c4",
+        "plugin.toml": "f26d8fea9f1ee06a194f03ca4ecf9f39d6991e63530994dff9801f1aa4cea109",
+        "plugin.wasm": "e113a1eb591c31a8abd342cbe0c7d25920caa4e7f36f940da0dced4f3ba250a1"
+      }
+    },
+    {
+      "id": "networks",
+      "version": "0.3.0",
+      "path": "plugins/networks",
+      "files": {
+        "README.md": "bd5a953157b31ee499272aedda8c99b85ac7bc25588ac7ea830d212ddee15a51",
+        "plugin.toml": "7a37adcfffdce91b7cd8f4dd213358fbe7bf04267902a56081b9fd0d486439f3",
+        "plugin.wasm": "d3a9e10051d80c798dcf0a2e48c12ac263c7662506b9cd1df1d2f34f5fd2cab9"
+      }
+    },
+    {
+      "id": "office-paths",
+      "version": "0.2.0",
+      "path": "plugins/office-paths",
+      "files": {
+        "README.md": "ca4db894545ae686f0863eb6613a512037f8e7efbfa0141193ac0dedb6954be5",
+        "plugin.toml": "46ce42ee95dc67c2e3bd23fce4dc309fb7aedd58e742645afb2db92942eb504f",
+        "plugin.wasm": "46551b57e2c903358197498e4eaf2d46db6c1842242b6f282a73cc46d5bbbe4e"
+      }
+    },
+    {
+      "id": "outlook",
+      "version": "0.3.0",
+      "path": "plugins/outlook",
+      "files": {
+        "README.md": "f3dfc9630f5f58f31c6b5ad045142671e27bfa28f59f28b4c3d3312505be20d1",
+        "plugin.toml": "95b43243e7ba47e96748258bbaec8ffa603f82aafe01dc109bc785c783040279",
+        "plugin.wasm": "1d851191393dcf5cc0f4bd737bd7f9e25dd1218ff17be40000929bfddb6a0677"
+      }
+    },
+    {
+      "id": "outlook-calendar",
+      "version": "0.3.0",
+      "path": "plugins/outlook-calendar",
+      "files": {
+        "README.md": "e6cde2a9c27b66ec0bd22dfb8fa5ab3af08caf11f5503bd228378f75eeb94cb6",
+        "plugin.toml": "fd25cecb8c85a71bc3c798d11fc899fcef8a4bef845b82eb09c552f8f36472ee",
+        "plugin.wasm": "2a9806280c3687d24ef8e460752546d7944ae49403020f7b6d2838dc1ea2794a"
+      }
+    },
+    {
+      "id": "remote-desktop",
+      "version": "0.3.0",
+      "path": "plugins/remote-desktop",
+      "files": {
+        "README.md": "e5f7c4b6d5e91a841d2f43bb546e589fad59eddfd84961b347027ce7f761ea88",
+        "plugin.toml": "1bd7000e96f5e4c2a957c3d7cb41557d9a66cef3855aed1addfe39b725426bcf",
+        "plugin.wasm": "0c2fecfe4d7ebd0250c62e92ef6a65223ae49a64fe18d04a2bd38ea2b7d6777b"
+      }
+    },
+    {
+      "id": "remote-workspaces",
+      "version": "0.3.0",
+      "path": "plugins/remote-workspaces",
+      "files": {
+        "README.md": "1cd92e6fa107aa63e028df43c8125b4a253d16839589dde5a25a58e573c50992",
+        "plugin.toml": "1c0d79023cec9a9a6409be649e2fc3b7f17018af503532f2086361cd07a3fece",
+        "plugin.wasm": "d6eb7f4154f5fec4917ebe73f526c3fe39116caa32d516a684e564f5fed8169e"
+      }
+    },
+    {
+      "id": "teams-meetings",
+      "version": "0.3.0",
+      "path": "plugins/teams-meetings",
+      "files": {
+        "README.md": "77282f515ba9c98e641335bc75914e00138e38aced99a0befd6c9b208ef31e47",
+        "plugin.toml": "102c5c8eaa6e7a3fbc6c4f341d73efcedd4ab8286042f0943db7e3856125773c",
+        "plugin.wasm": "32f31b3a8f42a8ae40e7286d6ada4597fb69d472e07ba6770a323860c0d661e4"
+      }
+    },
+    {
+      "id": "terminal-ssh",
+      "version": "0.4.0",
+      "path": "plugins/terminal-ssh",
+      "files": {
+        "README.md": "ce78f3773cec863b9cfcf42d7b763639390ed519cdfbeee35f4dcc69d2547f46",
+        "plugin.toml": "a5afaf7a6a60977e7730514c98f6ed0e5e048798246161c73b0505b6ef8fc479",
+        "plugin.wasm": "0e2b8f6807e6635aece56df541f0e79f55f2d5a66dab5819d4bc0c6e4fba3655"
+      }
+    },
+    {
+      "id": "ticket-ids",
+      "version": "0.3.0",
+      "path": "plugins/ticket-ids",
+      "files": {
+        "README.md": "3b5177c0dec05ed0652150ad2e63878090148d6cb2e0f2f8d778ff7f50827e62",
+        "plugin.toml": "ac8bbc976ac9df69c1247e8f9969bbf28a5f5d9f84d2ade497130f6ac01e5f22",
+        "plugin.wasm": "bd6633020136d0b1500add28412d422e3605a36c052fb1f5093cd8cf9149e395"
+      }
+    },
+    {
+      "id": "vscode-git",
+      "version": "0.3.0",
+      "path": "plugins/vscode-git",
+      "files": {
+        "README.md": "f337c7820d76d74c34ffeb330afd35ca573e00707c5b591ee2e64840c7712136",
+        "plugin.toml": "7333741513eea4d77f12a42bbb28194692c3c3463485e7859f2637aacb825b9a",
+        "plugin.wasm": "d3f6f61f8e1a6dcf4c4a3fc1e61c145e06c9dc34288c805252cf39beea36094b"
+      }
+    },
+    {
+      "id": "web-addresses",
+      "version": "0.5.0",
+      "path": "plugins/web-addresses",
+      "files": {
+        "README.md": "9893189ef8864cbdce0629b60ce4dc75730d638f2c23887fec14c65d5fe31cc7",
+        "plugin.toml": "fe39465f6bbedb07e0feb2bcf1e309fc14970f764aa711032215d43b86fa682f",
+        "plugin.wasm": "7aeada90e771d296883deffc4ad89cc5e4a8a75e2b06efa36f77c8ccc7741557"
+      }
+    }
+  ]
 }

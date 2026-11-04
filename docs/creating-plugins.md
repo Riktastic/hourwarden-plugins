@@ -1,19 +1,29 @@
 # Creating a plugin
 
-This guide walks you through a new plugin from an empty folder to an update in the app's store. [protocol.md](protocol.md) is the reference for every message and manifest field; this page is the how-to.
+This guide takes a new plugin from an empty folder to an update in the app's
+store. The reference for every message, manifest field and capability is
+`docs/plugins/protocol-wasm.md` in `hourwarden-core`; this page is the how-to.
 
 ## What a plugin is
 
-A plugin is a small program that HourWarden starts in the background. It tells HourWarden things the app cannot see by itself, such as the document open in Word, the server of an SSH session or a Teams meeting in progress. HourWarden does the rest: it weighs that information with everything else and picks the customer.
+A plugin is a small WebAssembly module that HourWarden runs inside the app. It
+tells HourWarden things the app cannot see by itself, such as the document
+open in Word, the server of an SSH session or a Teams meeting in progress.
+HourWarden does the rest: it weighs that information with everything else
+and picks the customer.
 
-- It talks over **stdin and stdout**, one line of JSON per message. Anything it writes to **stderr** goes to the plugin's log in the app.
-- It runs **without a window**, with its own folder as the working directory.
-- It can be written in **any language**. The plugins in this repository use PowerShell (5.1 on Windows, 7 on Linux) because it is on every Windows computer and reaches COM, UI Automation and the registry. `shared/protocol.ps1` handles the protocol for you.
-- A plugin only **adds information**. It cannot change entries, read the database or send anything to the server.
+- It is written in Rust with the SDK in `wasm/sdk` (`hourwarden-plugin`),
+  which handles the plumbing.
+- It runs **sandboxed**: no files, no network, no processes of its own. It
+  sees the window in front, its settings and the customer folders, and
+  everything else it asks the app for through **capabilities** that its
+  `plugin.toml` lists (for example `outlook.current_item`). Any other request
+  is refused.
+- Each call has a fixed budget; a plugin that loops is stopped and restarted.
+- A plugin only **adds information**. It cannot change entries, read the
+  database or send anything to the server.
 
 ## 1. Pick what it adds
-
-Choose the message that fits what you know (see the table in [protocol.md](protocol.md#from-the-plugin-to-hourwarden)):
 
 | You know... | Send |
 |---|---|
@@ -24,18 +34,37 @@ Choose the message that fits what you know (see the table in [protocol.md](proto
 | a file was saved | `file_changed` |
 | something to count per customer, such as mails sent | `metric` |
 
-Most plugins send `detail` for the window in front. That is what the example below does.
+Most plugins send `detail` for the window in front. The example below does.
 
-## 2. Make the folder
+## 2. Make the crate
 
 ```text
-plugins/notepad-files/
+wasm/notepad-files/
+  Cargo.toml
   plugin.toml
-  notepad-files.ps1
   README.md
+  src/lib.rs
 ```
 
-The folder name is the plugin's `id`: lower case letters, digits and `-`.
+The folder name is the plugin's `id`: lower case letters, digits and `-`. Add
+it to `members` in `wasm/Cargo.toml`.
+
+### Cargo.toml
+
+```toml
+[package]
+name = "notepad-files"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "notepad_files"
+crate-type = ["cdylib"]
+
+[dependencies]
+hourwarden-plugin = { path = "../sdk" }
+serde_json = "1"
+```
 
 ### plugin.toml
 
@@ -47,15 +76,15 @@ author = "Your name"
 category = "Documents"
 description = "Reports the file open in Notepad, so its folder can decide the customer."
 docs = "README.md"
-api = 1
+api = 2
+capabilities = []
 platforms = ["windows"]
 permissions = [
     "Reads the title of the window in front",
 ]
 
 [run]
-command = "powershell"
-args = ["-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-File", "notepad-files.ps1"]
+module = "plugin.wasm"
 
 [[settings]]
 key = "poll_seconds"
@@ -67,131 +96,138 @@ min = 1
 max = 30
 ```
 
-- `permissions` is shown to the user before installing. Say plainly what the plugin reads, such as "Reads your Outlook calendar".
-- `platforms` lists `windows`, `linux` or both. Use only `windows` when the plugin needs COM, Office, UI Automation or the registry. On Linux use `command = "pwsh"`.
-- Each `[[settings]]` entry becomes a field on the Plugins screen. `type` is `number`, `bool`, `text` or `list`.
+- `version` must be the same here and in `Cargo.toml`.
+- `capabilities` lists what the plugin may ask the app for; leave it empty
+  when the window title is enough.
+- `permissions` is shown to the user before installing. Say plainly what the
+  plugin reads, such as "Reads your Outlook calendar".
+- `platforms` lists `windows`, `linux` or both. A capability that only exists
+  on Windows (Outlook, Office, UI Automation) makes the plugin Windows only.
+- Each `[[settings]]` entry becomes a field on the Plugins screen. `type` is
+  `number`, `bool`, `text` or `list`.
 
-### notepad-files.ps1
+### src/lib.rs
 
-```powershell
-# Files open in Notepad: reports the document of the Notepad window in front.
-# Only reads the window title; nothing leaves the computer.
+```rust
+//! Files open in Notepad: reports the document of the Notepad window in front.
 
-. "$PSScriptRoot/protocol.ps1"
+#![allow(static_mut_refs)]
 
-# "notes.txt - Notepad" -> "notes.txt"; $null when the title has no file.
-function Get-NotepadDocument([string]$Title) {
-    if ($Title -match '^\*?(.+?) - Notepad$' -and $Matches[1] -ne 'Untitled') { return $Matches[1] }
-    return $null
+use hourwarden_plugin as hw;
+use hw::{json, Value};
+
+/// "notes.txt - Notepad" -> "notes.txt"; None when the title has no file.
+fn notepad_document(title: &str) -> Option<&str> {
+    let doc = title.strip_suffix(" - Notepad")?.trim_start_matches('*');
+    (doc != "Untitled").then_some(doc)
 }
 
-if ($script:testMode) { return }   # tests load the functions above and stop here
-Wait-Initialize
-Send-Status 'running' 'Watching Notepad'
+static mut POLL: hw::ForegroundPoll = hw::ForegroundPoll::new();
+static mut POLL_MS: i64 = 2000;
 
-while ($true) {
-    [void](Receive-Messages)        # takes in foreground, settings, folders and shutdown
-    $fg = $script:foreground
-    if ($fg -and (Test-App $fg.exe @('notepad.exe'))) {
-        $doc = Get-NotepadDocument $fg.title
-        # Details count for 30 seconds, so send them again while the window stays in front.
-        if ($doc) { Send-Message 'detail' @{ hwnd = $fg.hwnd; exe = $fg.exe; document = $doc } }
+fn on_init(data: Value) {
+    unsafe { POLL_MS = hw::poll_ms(&data["settings"], 2) };
+    hw::status("running", "Watching Notepad");
+}
+
+fn on_event(event: Value) {
+    if event["kind"] == "settings" {
+        unsafe { POLL_MS = hw::poll_ms(&event["settings"], 2) };
+    } else if let Some(fg) = unsafe { POLL.due(&event, POLL_MS) } {
+        // Details count for 30 seconds; ForegroundPoll repeats them while the window stays in front.
+        if hw::app_name(fg["exe"].as_str().unwrap_or("")) == "notepad" {
+            if let Some(doc) = notepad_document(fg["title"].as_str().unwrap_or("")) {
+                hw::emit(&json!({ "method": "detail", "params": { "hwnd": fg["hwnd"], "exe": fg["exe"], "document": doc } }));
+            }
+        }
     }
-    Wait-ForHost ([int](Get-Setting 'poll_seconds' 2) * 1000)
+}
+
+hw::plugin!(event = on_event, init = on_init);
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn file_name_from_the_title() {
+        assert_eq!(notepad_document("notes.txt - Notepad"), Some("notes.txt"));
+        assert_eq!(notepad_document("*notes.txt - Notepad"), Some("notes.txt"));
+        assert_eq!(notepad_document("Untitled - Notepad"), None);
+    }
 }
 ```
 
-`protocol.ps1` gives you:
+The SDK gives you:
 
-| Function or variable | Does |
+| Function | Does |
 |---|---|
-| `Wait-Initialize` | Waits for `initialize` and stores the settings and customer folders |
-| `Receive-Messages` | Handles waiting messages; exits the plugin on `shutdown` or when the app is gone |
-| `$script:foreground` | The window in front: `hwnd`, `pid`, `exe` (lower case), `title` |
-| `$script:folders` | The customer and project folders |
-| `Get-Setting key default` | A setting's current value |
-| `Test-App exe names` | Whether the window belongs to one of these programs; `.exe` is optional, so it works on Linux too |
-| `Send-Message method params` | Sends any message from protocol.md |
-| `Send-Status state message` | `running`, `degraded` (part of it does not work; say why) or `failing` |
-| `Send-Log message` | A line in the plugin's log |
-| `Wait-ForHost ms` | Sleeps, but wakes for messages from the app |
-
-Keep plugin files plain ASCII: Windows PowerShell 5.1 reads files without a byte order mark as ANSI.
+| `plugin!(event = .., init = ..)` | Exports the entry points the app calls |
+| `emit(&json!(..))` | Sends a message (`detail`, `meeting`, ...) |
+| `status(state, message)` | `running`, `degraded` (part of it does not work; say why) or `failing` |
+| `log(message)` | A line in the plugin's log in the app |
+| `capability(name, &arg)` | Asks the app for something its manifest lists; `None` when refused or unavailable |
+| `ForegroundPoll` | Hands you the window in front every `poll_seconds` |
+| `poll_ms`, `setting_i64`, `string_list` | Read settings |
+| `app_name`, `mail_domains` | Small helpers |
 
 ### README.md
 
-The app shows this in its help screen. Start with a `# Title` and a **Works on** line, then say what the plugin does, how to set it up, what it reads, and what each setting means.
-
-```markdown
-# Files open in Notepad
-
-**Works on:** Windows only
-
-Reports the file open in Notepad, so the customer folder it is in decides the customer.
-
-It only reads the title of the window in front.
-
-## Settings
-
-- **Check every**: how often the window is checked, in seconds.
-```
+The app shows this in its help screen. Start with a `# Title` and a
+**Works on** line, then say what the plugin does, how to set it up, what it
+reads, and what each setting means.
 
 ## 3. Test it
 
-Write `test/notepad-files.tests.ps1`. `Use-Plugin` loads your script in test mode, so only the functions run:
+The plugin's own logic is plain Rust and runs on your computer:
 
-```powershell
-. "$PSScriptRoot/TestKit.ps1"
-. (Use-Plugin 'notepad-files')
-
-Test 'file name from the title' {
-    Assert-Equal 'notes.txt' (Get-NotepadDocument 'notes.txt - Notepad')
-    Assert-Equal 'notes.txt' (Get-NotepadDocument '*notes.txt - Notepad')
-}
-
-Test 'no file yet' {
-    Assert-Equal $null (Get-NotepadDocument 'Untitled - Notepad')
-}
-
-Complete-Tests
+```bash
+cd wasm && cargo test -p notepad-files
 ```
 
-Run all tests. They fail when a plugin has no test file or no documentation, or when `platforms` and the **Works on** line disagree.
+Then run the built module the way the app does, with the `wasm_run` example
+in `hourwarden-core`:
 
-```powershell
-powershell -ExecutionPolicy Bypass -File test\Run-Tests.ps1
-```
-
-Then run the plugin the way the app does and watch what it sends:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File test\Test-Plugin.ps1 -Plugin notepad-files -Seconds 10 `
-    -Foreground '{"hwnd":1,"pid":0,"exe":"notepad.exe","title":"notes.txt - Notepad"}'
+```bash
+cargo build --release --target wasm32-unknown-unknown -p notepad-files
+cargo run --example wasm_run -- notepad_files.wasm "notes.txt - Notepad" notepad.exe
 ```
 
 ## 4. Try it in the app
 
-On the **Plugins** screen, choose **Install from folder** and pick `plugins/notepad-files`. It shows up as a local plugin with its log (**Show log**) and settings. Change the script, then install from the folder again to load the change.
+Copy `plugin.toml`, `README.md` and the built module (renamed to
+`plugin.wasm`) into a folder. On the **Plugins** screen, choose **Install
+from folder** and pick it. It shows up as a local plugin with its log
+(**Show log**) and settings.
 
 ## 5. Publish it
 
-1. Raise `version` in `plugin.toml` for every change, or the store offers no update.
-2. Run `powershell -ExecutionPolicy Bypass -File build-index.ps1`. It copies `shared/protocol.ps1` into your plugin, writes the SHA-256 of every file to `index.json` and signs it.
+1. Raise `version` in `plugin.toml` and `Cargo.toml` for every change, or the
+   store offers no update.
+2. Run `wasm/build-store.sh`. It builds every plugin, copies it into
+   `plugins/<id>/`, writes the SHA-256 of every file to `index.json` and signs
+   it.
 3. Commit and push. Installed apps see the new plugin or update in the store.
 
-HourWarden checks every file against `index.json` when installing and before each start, so a changed file never runs without being reinstalled.
+HourWarden checks every file against `index.json` when installing and before
+each start, so a changed file never runs without being reinstalled.
 
 ### Your own repository
 
-You don't need this repository to share plugins. Copy its layout (`plugins/`, `shared/`, `build-index.ps1`), make your own signing key, and push it to GitHub or any HTTPS address. Users add it on the Plugins screen and trust your key once.
+You don't need this repository to share plugins. Copy its layout (`wasm/`,
+`plugins/`, `index.json`), make your own signing key, and push it to GitHub or
+any HTTPS address. Users add it on the Plugins screen and trust your key once.
 
 ### Contributing here
 
-Pull requests are welcome. Plugins in this store need a test file and a README, must keep everything on the computer (no network calls of their own), and are published under the MIT licence of this repository.
+Pull requests are welcome. Plugins in this store need tests and a README, and
+are published under the MIT licence of this repository.
 
 ## Tips
 
-- **Read as little as you need.** Prefer the window title over reading a document's contents, and say exactly what you read in `permissions` and the README.
-- **Fail softly.** When something you depend on is missing, for example Outlook is not installed, send `degraded` with the reason and keep running, instead of exiting.
-- **Stay light.** Poll every few seconds at most, and only do work when the window in front belongs to your program.
-- **Repeat what expires.** `detail` lasts 30 seconds, `meeting` 20 seconds and `network` 3 minutes; `calendar` should be sent again every hour.
+- **Read as little as you need.** Prefer the window title over a capability,
+  and say exactly what you read in `permissions` and the README.
+- **Fail softly.** When a capability answers `None` (Outlook is not
+  installed, say), send `degraded` with the reason and keep running.
+- **Repeat what expires.** `detail` lasts 30 seconds, `meeting` 20 seconds and
+  `network` 3 minutes; `calendar` should be sent again every hour.

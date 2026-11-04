@@ -1,6 +1,6 @@
 # SSH sessions in terminals
 
-**Works on:** Windows and Linux. On Linux, plugins need PowerShell 7 (`pwsh`).
+**Works on:** Windows and Linux.
 
 Recognises the server of an SSH session from the title of Windows Terminal, PuTTY, KiTTY, SecureCRT, MobaXterm and other terminals, so time on a customer's server goes to that customer, like a remote desktop session.
 

@@ -1,6 +1,6 @@
 # Wi-Fi and VPN networks
 
-**Works on:** Windows and Linux. On Linux it needs NetworkManager (nmcli), as on KDE Plasma, GNOME and most desktops. On Linux, plugins need PowerShell 7 (`pwsh`).
+**Works on:** Windows and Linux. On Linux it needs NetworkManager (nmcli), as on KDE Plasma, GNOME and most desktops.
 
 Reports the Wi-Fi network or VPN you are connected to. Link a customer's office Wi-Fi or VPN to that customer; it is used only when nothing else decides the customer.
 

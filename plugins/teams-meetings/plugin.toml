@@ -1,11 +1,12 @@
 id = "teams-meetings"
 name = "Teams meetings"
-version = "0.1.4"
+version = "0.3.0"
 author = "HourWarden"
 category = "Meetings"
 docs = "README.md"
 description = "Notices Teams calls and meetings, also when Teams is in the background, and gives the meeting time to the customer named in the meeting title."
-api = 1
+api = 2
+capabilities = ["teams.state"]
 platforms = ["windows"]
 permissions = [
     "Reads which app uses the microphone (Windows privacy registry, read only)",
@@ -13,8 +14,7 @@ permissions = [
 ]
 
 [run]
-command = "powershell"
-args = ["-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-File", "teams-meetings.ps1"]
+module = "plugin.wasm"
 
 [[settings]]
 key = "poll_seconds"

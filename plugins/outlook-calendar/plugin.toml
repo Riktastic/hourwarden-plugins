@@ -1,11 +1,12 @@
 id = "outlook-calendar"
 name = "Outlook calendar"
-version = "0.1.3"
+version = "0.3.0"
 author = "HourWarden"
 category = "Mail"
 docs = "README.md"
 description = "Reads your Outlook (classic) appointments of the last days, so the daily review can add meetings you attended away from the computer, for the customer of the attendees' mail domains or the customer named in the subject."
-api = 1
+api = 2
+capabilities = ["outlook.calendar"]
 platforms = ["windows"]
 permissions = [
     "Reads the time, subject, location and attendees of your Outlook appointments (never the body)",
@@ -13,8 +14,7 @@ permissions = [
 ]
 
 [run]
-command = "powershell"
-args = ["-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-File", "outlook-calendar.ps1"]
+module = "plugin.wasm"
 
 [[settings]]
 key = "days_back"

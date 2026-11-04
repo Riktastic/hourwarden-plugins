@@ -1,19 +1,19 @@
 id = "admin-tools"
 name = "Servers in admin tools"
-version = "0.2.1"
+version = "0.3.0"
 author = "HourWarden"
 category = "Remote access"
 docs = "README.md"
 description = "Recognises the server, database or domain you manage from the title of SQL Server Management Studio, WinSCP, FileZilla, Hyper-V and VMware consoles, and Windows management consoles such as Active Directory and DNS. Time there goes to the customer whose server or domain it is."
-api = 1
+api = 2
+capabilities = []
 platforms = ["windows", "linux"]
 permissions = [
     "Reads the title of the window in front",
 ]
 
 [run]
-command = "powershell"
-args = ["-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-File", "admin-tools.ps1"]
+module = "plugin.wasm"
 
 [[settings]]
 key = "poll_seconds"

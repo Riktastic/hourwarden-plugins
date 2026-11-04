@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Builds the plugin API 2 store (v2/) in the hourwarden-linux Docker image:
-# compiles the plugins to WebAssembly, writes v2/index.json and signs it with
+# Builds the plugin store in the hourwarden-linux Docker image: compiles the
+# plugins to WebAssembly, writes plugins/ and index.json and signs it with
 # the key in ~/.hourwarden (mounted read-only; it never leaves this computer).
 #
 #   wasm/build-store.sh

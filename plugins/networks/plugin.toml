@@ -1,19 +1,19 @@
 id = "networks"
 name = "Wi-Fi and VPN networks"
-version = "0.2.1"
+version = "0.3.0"
 author = "HourWarden"
 category = "Location"
 docs = "README.md"
 description = "Reports the Wi-Fi network or VPN you are connected to. Link a customer's office Wi-Fi or VPN to that customer; it is used only when nothing else decides the customer."
-api = 1
+api = 2
+capabilities = ["net.connections"]
 platforms = ["windows", "linux"]
 permissions = [
     "Reads the names of connected networks and VPN connections",
 ]
 
 [run]
-command = "powershell"
-args = ["-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-File", "networks.ps1"]
+module = "plugin.wasm"
 
 [[settings]]
 key = "poll_seconds"

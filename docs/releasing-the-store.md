@@ -1,18 +1,15 @@
 # Releasing plugins
 
-This repository holds two plugin stores side by side:
+The store is `index.json`, its signature and `plugins/<id>/` at the top of
+this repository, built from the source in `wasm/`. `index.json` is signed
+with `%USERPROFILE%\.hourwarden\store-signing.key`; the apps trust its public
+key (`DEFAULT_KEY` in `hourwarden-core/src/repos.rs`).
 
-| Store | Plugins | Read by | Built with |
-|---|---|---|---|
-| `index.json` and `plugins/` at the top | PowerShell plugins (plugin API 1) | HourWarden 0.24 and older | `build-index.ps1` |
-| `v2/` | WebAssembly plugins (plugin API 2) | HourWarden 0.25 and newer | `wasm/build-store.sh` |
+Plugins are WebAssembly (plugin API 2). The PowerShell plugins (API 1) were
+removed in November 2026: HourWarden 0.24 and older find no plugins they can
+run here, and tell their users to update the app.
 
-An app that speaks API 2 uses `v2/` when a repository has one, so one address
-serves both. Both indexes are signed with the same key,
-`%USERPROFILE%\.hourwarden\store-signing.key`; the apps trust its public key
-(`DEFAULT_KEY` in `hourwarden-core/src/repos.rs`).
-
-## A WebAssembly plugin (v2)
+## Steps
 
 1. Change the plugin in `wasm/<id>/`, and raise its version in **both**
    `wasm/<id>/Cargo.toml` and `wasm/<id>/plugin.toml` (they must match).
@@ -22,10 +19,10 @@ serves both. Both indexes are signed with the same key,
    in `hourwarden-core` (`HW_TICKS`, `HW_FOLDERS` for tick-driven plugins).
 3. Build and sign the store: `wasm/build-store.sh`. It compiles every plugin
    in the `hourwarden-linux` Docker image, copies each one's `plugin.toml`,
-   `README.md` and `plugin.wasm` into `v2/plugins/<id>/`, writes
-   `v2/index.json` with every file's SHA-256 and signs it (the key is mounted
-   read-only and stays on this computer).
-4. Commit `wasm/` and `v2/`, push `main`.
+   `README.md` and `plugin.wasm` into `plugins/<id>/`, writes `index.json`
+   with every file's SHA-256 and signs it (the key is mounted read-only and
+   stays on this computer).
+4. Commit `wasm/`, `plugins/`, `index.json` and `index.json.sig`, push `main`.
 
 From then on:
 
@@ -35,24 +32,13 @@ From then on:
   on the app's first start.
 
 The desktop app's test `every_webassembly_plugin_in_the_store_starts`
-installs and starts every plugin from `v2/`; run it before an app release.
+installs and starts every plugin from this store; run it before an app
+release.
 
 A plugin may only use the capabilities its `plugin.toml` lists
 (`capabilities = [...]`); see the catalogue in
 `hourwarden-core/docs/plugins/protocol-wasm.md`.
 
-## A PowerShell plugin (old store)
-
-Only for HourWarden 0.24 and older. `build-index.ps1` copies
-`shared/protocol.ps1` into the plugins, writes `index.json` and signs it.
-It runs `hourwarden-sign` with `cargo` from `hourwarden-core`.
-
-Bitdefender deletes `.ps1` files in this repository: add an exception for the
-folder, then `git restore .` to get them back. Never commit those deletions.
-
 ## Writing a plugin
 
-`docs/creating-plugins.md` describes the PowerShell plugins (API 1). For
-WebAssembly plugins, follow an existing one in `wasm/` and the protocol in
-`hourwarden-core/docs/plugins/protocol-wasm.md`; the SDK (`wasm/sdk`) does the
-plumbing.
+[creating-plugins.md](creating-plugins.md).

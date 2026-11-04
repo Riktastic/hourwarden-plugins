@@ -1,11 +1,12 @@
 id = "office-paths"
 name = "Office and Explorer paths"
-version = "0.1.4"
+version = "0.2.0"
 author = "HourWarden"
 category = "Documents"
 docs = "README.md"
 description = "Gives the full path of the document open in Word, Excel and PowerPoint, and of the folder open in File Explorer, so customer folders are recognised even when the title only shows the file name."
-api = 1
+api = 2
+capabilities = ["office.document"]
 platforms = ["windows"]
 permissions = [
     "Reads the file path of the active Word, Excel and PowerPoint document (never the content)",
@@ -13,8 +14,7 @@ permissions = [
 ]
 
 [run]
-command = "powershell"
-args = ["-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-File", "office-paths.ps1"]
+module = "plugin.wasm"
 
 [[settings]]
 key = "poll_seconds"

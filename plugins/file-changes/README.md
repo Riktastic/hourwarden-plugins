@@ -1,6 +1,6 @@
 # Saved files in customer folders
 
-**Works on:** Windows and Linux. On Linux, plugins need PowerShell 7 (`pwsh`).
+**Works on:** Windows and Linux.
 
 Notices files you save, create or rename in customer folders. When the app in front does not show which file you work on, a file just saved in a customer folder decides the customer.
 

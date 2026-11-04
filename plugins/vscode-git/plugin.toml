@@ -1,11 +1,12 @@
 id = "vscode-git"
 name = "VS Code folders and git repositories"
-version = "0.2.1"
+version = "0.3.0"
 author = "HourWarden"
 category = "Development"
 docs = "README.md"
 description = "Finds the folder of the VS Code (or Cursor, Windsurf, VSCodium) window in front and the git repository it belongs to, such as contoso/portal. The folder counts as a customer folder; the repository's owner and name are matched against customer names and aliases. Remote SSH windows give their server."
-api = 1
+api = 2
+capabilities = ["vscode.workspaces", "git.config"]
 platforms = ["windows", "linux"]
 permissions = [
     "Reads the title of VS Code windows in front",
@@ -13,8 +14,7 @@ permissions = [
 ]
 
 [run]
-command = "powershell"
-args = ["-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-File", "vscode-git.ps1"]
+module = "plugin.wasm"
 
 [[settings]]
 key = "poll_seconds"

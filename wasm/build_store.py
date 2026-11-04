@@ -1,11 +1,7 @@
-"""Builds the plugin API 2 store in v2/: compiles every plugin in this
-workspace to WebAssembly, copies each one's plugin.toml, README.md and
-module into v2/plugins/<id>/, records every file's SHA-256 in
-v2/index.json and signs it.
-
-Apps that speak plugin API 2 use v2/ (see V2_FOLDER in hourwarden-core);
-older ones keep reading the PowerShell store in index.json at the top,
-which build-index.ps1 builds.
+"""Builds the plugin store at the top of this repository: compiles every
+plugin in this workspace to WebAssembly, copies each one's plugin.toml,
+README.md and module into plugins/<id>/, records every file's SHA-256 in
+index.json and signs it.
 
 Run it with build-store.sh, which does this in the hourwarden-linux Docker
 image (with the Rust toolchain and the wasm32 target). Directly:
@@ -23,7 +19,7 @@ from pathlib import Path
 
 WASM = Path(__file__).resolve().parent
 ROOT = WASM.parent
-STORE = ROOT / "v2"
+STORE = ROOT
 
 
 def sha256(path: Path) -> str:
@@ -84,12 +80,13 @@ def main() -> None:
     opts = args.parse_args()
 
     out = build()
-    if STORE.exists():
-        shutil.rmtree(STORE)
+    # Only the built plugins are replaced, never the rest of the repository.
+    if (STORE / "plugins").exists():
+        shutil.rmtree(STORE / "plugins")
     entries = [plugin(crate, out) for crate in sorted(members())]
     index = {"name": "HourWarden plugins", "api": 2, "plugins": entries}
     (STORE / "index.json").write_text(json.dumps(index, indent=2) + "\n", encoding="utf-8", newline="\n")
-    print(f"v2/index.json written with {len(entries)} plugins")
+    print(f"index.json written with {len(entries)} plugins")
     sign(opts.key, opts.core)
 
 

@@ -1,6 +1,6 @@
 # Citrix, Azure Virtual Desktop and Horizon
 
-**Works on:** Windows and Linux. On Linux, plugins need PowerShell 7 (`pwsh`).
+**Works on:** Windows and Linux.
 
 Recognises the remote desktop or app you work in through Citrix Workspace, Azure Virtual Desktop and Windows 365 (Windows App, Remote Desktop client) and VMware Horizon. The workplace name is matched against customer names and aliases.
 

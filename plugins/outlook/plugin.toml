@@ -1,11 +1,12 @@
 id = "outlook"
 name = "Outlook mail"
-version = "0.2.4"
+version = "0.3.0"
 author = "HourWarden"
 category = "Mail"
 docs = "README.md"
 description = "Reads the subject and the sender and recipient domains of the mail or appointment you have open or selected in Outlook (classic), so mail time goes to the customer with that mail domain. Also counts the mails you send to and receive from each customer."
-api = 1
+api = 2
+capabilities = ["outlook.current_item", "outlook.mail_since"]
 platforms = ["windows"]
 permissions = [
     "Reads the subject, sender and recipients of the selected or open Outlook item (read only, never the body)",
@@ -14,8 +15,7 @@ permissions = [
 ]
 
 [run]
-command = "powershell"
-args = ["-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-File", "outlook.ps1"]
+module = "plugin.wasm"
 
 [[settings]]
 key = "poll_seconds"
