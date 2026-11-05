@@ -34,6 +34,7 @@ struct Work {
     category: &'static str,
     name: Option<String>,
     doing: Option<String>,
+    /// Where it is, for people: "resource group rg-web", "factory adf-sales".
     group: Option<String>,
 }
 
@@ -48,7 +49,7 @@ impl Work {
             parts.push(d.clone());
         }
         if let Some(g) = &self.group {
-            parts.push(format!("resource group {g}"));
+            parts.push(g.clone());
         }
         parts.join(" · ")
     }
@@ -142,6 +143,15 @@ const BLADES: &[(&str, &str)] = &[
     ("accesspolicies", "access policies"),
     ("containers", "containers"),
     ("storagebrowser", "storage browser"),
+    ("fileshares", "file shares"),
+    ("fileservices", "file shares"),
+    ("queues", "queues"),
+    ("tables", "tables"),
+    ("lifecyclemanagement", "lifecycle management"),
+    ("accesskeys", "access keys"),
+    ("sharedaccesssignature", "shared access signature"),
+    ("dataprotection", "data protection"),
+    ("redundancy", "redundancy"),
     ("queryeditor", "query editor"),
     ("costanalysis", "cost analysis"),
     ("properties", "properties"),
@@ -171,6 +181,139 @@ const PAGES: &[(&str, &str, &str)] = &[
     ("quickstart", "quickstart", ADMIN),
     ("marketplace", "Marketplace", INFRA),
 ];
+
+/// Entra pages (in the portal and the Entra admin centre), by a word in the
+/// location, with what you work on.
+const ENTRA: &[(&str, &str)] = &[
+    ("conditionalaccess", "conditional access"),
+    ("pimcommon", "Privileged Identity Management"),
+    ("privilegedidentity", "Privileged Identity Management"),
+    ("identitygovernance", "identity governance"),
+    ("accessreviews", "access reviews"),
+    ("registeredapps", "app registrations"),
+    ("applicationmenublade", "app registration"),
+    ("enterpriseapplication", "enterprise applications"),
+    ("startboardapplications", "enterprise applications"),
+    ("serviceprincipal", "enterprise application"),
+    ("userdetails", "user"),
+    ("usersmanagement", "users"),
+    ("groupdetails", "group"),
+    ("groupsmanagement", "groups"),
+    ("rolesmanagement", "roles"),
+    ("rolemenublade", "roles"),
+    ("signins", "sign-in logs"),
+    ("auditlogs", "audit logs"),
+    ("devices", "devices"),
+    ("authenticationmethods", "authentication methods"),
+    ("identityprotection", "Identity Protection"),
+    ("domains", "custom domains"),
+    ("licenses", "licences"),
+];
+
+/// What you do in Entra, from the location after the host.
+fn entra_doing(location: &str) -> Option<String> {
+    let l = location.to_lowercase();
+    ENTRA.iter().find(|(k, _)| l.contains(k)).map(|(_, d)| d.to_string())
+}
+
+/// Data Factory studio: adf.azure.com/en/authoring/pipeline/Load%20sales?factory=/subscriptions/…/factories/adf-sales
+fn data_factory(path: &str, query: &str) -> Work {
+    let seg: Vec<String> = path.split('/').filter(|s| !s.is_empty()).map(|s| s.replace("%20", " ")).collect();
+    let lower: Vec<String> = seg.iter().map(|s| s.to_lowercase()).collect();
+    let factory = query.split('&').find_map(|kv| kv.strip_prefix("factory=")).and_then(|f| f.replace("%2F", "/").replace("%2f", "/").rsplit('/').next().map(str::to_string)).filter(|f| !f.is_empty());
+    let at = |word: &str| lower.iter().position(|s| s == word);
+    let (kind, name, doing) = if let Some(i) = at("authoring") {
+        let item = lower.get(i + 1).map(String::as_str).unwrap_or("");
+        let kind = match item {
+            "pipeline" => "pipeline",
+            "dataset" => "dataset",
+            "dataflow" => "data flow",
+            "trigger" => "trigger",
+            "linkedservice" => "linked service",
+            "powerquery" => "Power Query",
+            _ => "Data Factory",
+        };
+        (kind, seg.get(i + 2).cloned(), Some("authoring"))
+    } else if let Some(i) = at("monitoring") {
+        let what = lower.get(i + 1).map(String::as_str).unwrap_or("");
+        let kind = match what {
+            "pipelineruns" | "pipelinerun" => "pipeline runs",
+            "triggerruns" => "trigger runs",
+            "integrationruntimes" => "integration runtimes",
+            _ => "Data Factory",
+        };
+        (kind, None, Some("monitoring"))
+    } else if at("management").is_some() {
+        let kind = if lower.iter().any(|s| s.contains("linkedservice")) {
+            "linked services"
+        } else if lower.iter().any(|s| s.contains("integrationruntime")) {
+            "integration runtimes"
+        } else if lower.iter().any(|s| s.contains("trigger")) {
+            "triggers"
+        } else {
+            "Data Factory"
+        };
+        (kind, None, Some("managing"))
+    } else {
+        ("Data Factory", None, None)
+    };
+    let name = match (name, &factory) {
+        (Some(n), _) => Some(n),
+        (None, Some(f)) => Some(f.clone()),
+        (None, None) => None,
+    };
+    let place = factory.filter(|f| Some(f) != name.as_ref()).map(|f| format!("factory {f}"));
+    Work { kind: kind.into(), category: DATA, name, doing: doing.map(str::to_string), group: place }
+}
+
+/// Databricks: adb-123.4.azuredatabricks.net/editor/notebooks/…, #notebook/…,
+/// /jobs/…, /compute, /sql/editor, /explore/data/<catalog>/<schema>/<table>…
+fn databricks(path_and_fragment: &str, title: &str) -> Work {
+    let seg: Vec<String> = path_and_fragment
+        .split(['/', '#', '?'])
+        .filter(|s| !s.is_empty())
+        .map(|s| s.replace("%20", " "))
+        .collect();
+    let lower: Vec<String> = seg.iter().map(|s| s.to_lowercase()).collect();
+    let has = |w: &str| lower.iter().any(|s| s == w);
+    let name = title.split(" - ").next().map(str::trim).filter(|t| !t.is_empty() && !t.eq_ignore_ascii_case("databricks")).map(str::to_string);
+    let (kind, name) = if has("explore") && has("data") {
+        let i = lower.iter().position(|s| s == "data").unwrap_or(0);
+        let path: Vec<String> = seg.iter().skip(i + 1).take(3).cloned().collect();
+        let kind = match path.len() {
+            3 => "table",
+            2 => "schema",
+            1 => "catalog",
+            _ => "Catalog Explorer",
+        };
+        (kind, (!path.is_empty()).then(|| path.join(".")).or(name))
+    } else if has("notebooks") || has("notebook") {
+        ("notebook", name)
+    } else if has("jobs") || has("job") {
+        if has("runs") || has("run") {
+            ("job run", name)
+        } else {
+            ("job", name)
+        }
+    } else if has("pipelines") {
+        ("pipeline", name)
+    } else if has("compute") || has("clusters") {
+        ("compute", None)
+    } else if has("sql") && (has("editor") || has("queries")) {
+        ("SQL query", name)
+    } else if has("sql") && has("dashboards") || has("dashboardsv3") {
+        ("dashboard", name)
+    } else if has("ml") || has("experiments") || has("mlflow") {
+        ("ML experiment", name)
+    } else if has("genie") {
+        ("Genie space", name)
+    } else if has("workspace") || has("browse") {
+        ("workspace files", None)
+    } else {
+        ("Databricks", None)
+    };
+    Work { kind: kind.into(), category: DATA, name, doing: None, group: None }
+}
 
 /// The admin centres, by host.
 const CENTRES: &[(&str, &str, &str)] = &[
@@ -228,7 +371,7 @@ fn resource(seg: &[String]) -> Option<Work> {
         .or_else(|| TYPES.iter().find(|(t, _, _)| *t == provider))
         .map(|(_, k, c)| (k.to_string(), *c))
         .unwrap_or_else(|| (types.last().cloned().unwrap_or_else(|| provider.clone()), INFRA));
-    Some(Work { kind, category, name, doing: blade(&rest), group })
+    Some(Work { kind, category, name, doing: blade(&rest), group: group.map(|g| format!("resource group {g}")) })
 }
 
 fn blade(rest: &[String]) -> Option<String> {
@@ -241,6 +384,17 @@ fn from_address(address: &str, title: &str) -> Option<Work> {
     let a = address.trim();
     let a = a.split_once("://").map_or(a, |(_, r)| r);
     let host = a.split(['/', '#', '?']).next().unwrap_or("").to_lowercase();
+    let location = &a[host.len().min(a.len())..];
+    if host == "adf.azure.com" {
+        let (path, query) = location.split_once('?').unwrap_or((location, ""));
+        return Some(data_factory(path, query));
+    }
+    if host.ends_with(".azuredatabricks.net") {
+        return Some(databricks(location, title));
+    }
+    if host == "entra.microsoft.com" || host == "aad.portal.azure.com" {
+        return Some(Work { kind: "Entra".into(), category: SECURITY, name: None, doing: entra_doing(location), group: None });
+    }
     if let Some((_, name, category)) = CENTRES.iter().find(|(h, _, _)| *h == host) {
         let page = title.split(" - ").next().map(str::trim).filter(|t| !t.is_empty() && !t.eq_ignore_ascii_case(name)).map(str::to_string);
         return Some(Work { kind: name.to_string(), category, name: page, doing: None, group: None });
@@ -256,6 +410,9 @@ fn from_address(address: &str, title: &str) -> Option<Work> {
     }
     // #view/Microsoft_Azure_CostManagement/…, #browse/resourcegroups, #home
     let joined = lower.join("/");
+    if joined.contains("microsoft_aad") || joined.contains("pimcommon") {
+        return Some(Work { kind: "Entra".into(), category: SECURITY, name: None, doing: entra_doing(&joined), group: None });
+    }
     if let Some((_, name, category)) = PAGES.iter().find(|(k, _, _)| joined.contains(k)) {
         return Some(Work { kind: name.to_string(), category, name: None, doing: None, group: None });
     }
@@ -290,7 +447,7 @@ fn configure(settings: &Value) {
 /// Only these titles are worth reading the address for.
 fn looks_like_azure(title: &str) -> bool {
     let t = title.to_lowercase();
-    ["microsoft azure", "azure", "entra", "intune", "microsoft 365 admin", "defender", "purview", "exchange admin", "teams admin", "power platform", "power apps", "power automate", "ai foundry"]
+    ["microsoft azure", "azure", "entra", "intune", "microsoft 365 admin", "defender", "purview", "exchange admin", "teams admin", "power platform", "power apps", "power automate", "ai foundry", "databricks", "data factory"]
         .iter()
         .any(|w| t.contains(w))
 }
@@ -371,13 +528,44 @@ mod tests {
     #[test]
     fn portal_pages_and_admin_centres() {
         assert_eq!(portal("view/Microsoft_Azure_CostManagement/Menu/~/costanalysis").category, COST);
-        assert_eq!(portal("view/Microsoft_AAD_IAM/ActiveDirectoryMenuBlade/~/Overview").kind, "Entra ID");
+        assert_eq!(portal("view/Microsoft_AAD_IAM/ActiveDirectoryMenuBlade/~/Overview").kind, "Entra");
         assert_eq!(portal("home").kind, "Azure portal");
         let intune = from_address("https://intune.microsoft.com/#view/Microsoft_Intune_DeviceSettings/DevicesMenu/~/overview", "Devices - Microsoft Intune admin center").unwrap();
         assert_eq!((intune.describe().as_str(), intune.category), ("Devices · Intune", ADMIN));
         assert_eq!(from_address("https://security.microsoft.com/incidents", "Incidents - Microsoft Defender").unwrap().category, SECURITY);
         assert_eq!(from_address("https://dev.azure.com/contoso/web", "Overview"), None, "that is DevOps");
         assert_eq!(from_address("https://www.bing.com/search?q=azure", "azure - Search"), None);
+    }
+
+    #[test]
+    fn entra_storage_data_factory_and_databricks() {
+        let e = |a: &str| from_address(a, "Microsoft Entra admin center").unwrap().describe();
+        assert_eq!(e("https://entra.microsoft.com/#view/Microsoft_AAD_UsersAndTenants/UserManagementMenuBlade/~/AllUsers"), "Entra");
+        assert_eq!(e("https://entra.microsoft.com/#view/Microsoft_AAD_UsersAndTenants/UsersManagementMenuBlade/~/AllUsers"), "Entra · users");
+        assert_eq!(e("https://entra.microsoft.com/#view/Microsoft_AAD_ConditionalAccess/ConditionalAccessBlade/~/Policies"), "Entra · conditional access");
+        assert_eq!(e("https://entra.microsoft.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade"), "Entra · app registrations");
+        assert_eq!(portal("view/Microsoft_AAD_IAM/StartboardApplicationsMenuBlade/~/AppAppsPreview").describe(), "Entra · enterprise applications");
+        assert_eq!(portal("view/Microsoft_Azure_PIMCommon/CommonMenuBlade/~/quickStart").describe(), "Entra · Privileged Identity Management");
+
+        let st = portal(&format!("resource/subscriptions/{SUB}/resourceGroups/rg-data/providers/Microsoft.Storage/storageAccounts/stsales/fileShares"));
+        assert_eq!(st.describe(), "stsales · storage account · file shares · resource group rg-data");
+        assert_eq!(portal(&format!("resource/subscriptions/{SUB}/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/st/sharedAccessSignature")).doing.as_deref(), Some("shared access signature"));
+
+        let adf = |a: &str| from_address(a, "Azure Data Factory").unwrap();
+        let p = adf(&format!("https://adf.azure.com/en/authoring/pipeline/Load%20sales?factory=%2Fsubscriptions%2F{SUB}%2FresourceGroups%2Frg%2Fproviders%2FMicrosoft.DataFactory%2Ffactories%2Fadf-sales"));
+        assert_eq!(p.describe(), "Load sales · pipeline · authoring · factory adf-sales");
+        assert_eq!(adf("https://adf.azure.com/en/monitoring/pipelineruns?factory=/subscriptions/x/factories/adf-sales").describe(), "adf-sales · pipeline runs · monitoring");
+        assert_eq!(adf("https://adf.azure.com/en/management/datafactory/linkedservices?factory=/x/factories/adf-sales").kind, "linked services");
+
+        let db = |a: &str, t: &str| from_address(a, t).unwrap();
+        let host = "https://adb-1234567890123456.7.azuredatabricks.net";
+        assert_eq!(db(&format!("{host}/editor/notebooks/1122334455?o=123"), "Load bronze - Databricks").describe(), "Load bronze · notebook");
+        assert_eq!(db(&format!("{host}/?o=123#notebook/1122/command/3344"), "Load bronze - Databricks").kind, "notebook");
+        assert_eq!(db(&format!("{host}/jobs/77/runs/88?o=1"), "Nightly - Databricks").kind, "job run");
+        assert_eq!(db(&format!("{host}/explore/data/main/sales/orders?o=1"), "orders - Databricks").describe(), "main.sales.orders · table");
+        assert_eq!(db(&format!("{host}/sql/editor/abc?o=1"), "Top customers - Databricks").describe(), "Top customers · SQL query");
+        assert_eq!(db(&format!("{host}/compute/clusters?o=1"), "Compute - Databricks").kind, "compute");
+        assert_eq!(db(&format!("{host}/compute/clusters?o=1"), "x").category, DATA);
     }
 
     #[test]

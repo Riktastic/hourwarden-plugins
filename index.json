@@ -14,12 +14,12 @@
     },
     {
       "id": "azure",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "path": "plugins/azure",
       "files": {
-        "README.md": "17ce42e8b3442e87ef3e8211f3983cae6422e486a5f3bcdd16a389d385469843",
-        "plugin.toml": "199528dfccf2ab229403eb1d4fe6880581f8a1d9c7fa87ae103e6abbdff4f192",
-        "plugin.wasm": "62974a71ec35842d3c988392c7d430b61aed053e4c7b36051417a54943dd6e4d"
+        "README.md": "dcdb4d4e5d6f72c08c52b5cb850d001d200f5d89611ed4968b1d9710c5cfd950",
+        "plugin.toml": "71beaaa2ccf2aa935a17750653db8d25dbe9e186311014d2003a76644b5aa77a",
+        "plugin.wasm": "7d6c7f830ab220318595d89e2fed2c76120ae31c98085745885b66f5b53d4b78"
       }
     },
     {

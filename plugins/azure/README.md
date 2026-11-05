@@ -18,6 +18,19 @@ On `portal.azure.com` the address says which resource you have open, in which re
 
 About 60 resource types are known by name (virtual machines, App Service, Container Apps, AKS, networks, SQL, Cosmos DB, storage, Data Factory, Synapse, Databricks, Key Vault, Application Insights, Log Analytics, Logic Apps, Service Bus, API Management, Azure AI services and more). Another type is shown by its own name from the address. What you look at (overview, configuration, logs, metrics, access control, networking, deployment, secrets, scaling, backup…) is added when it is known.
 
+## Inside Entra, storage accounts, Data Factory and Databricks
+
+| You have open | Shown as |
+|---|---|
+| Entra: users, groups, app registrations, enterprise applications, conditional access, roles, PIM, identity governance, sign-in and audit logs, devices, authentication methods | *Entra · conditional access* |
+| A storage account's containers, file shares, queues, tables, lifecycle management, access keys or shared access signatures | *stsales · storage account · file shares · resource group rg-data* |
+| Data Factory studio (`adf.azure.com`), authoring a pipeline, dataset, data flow, trigger or linked service | *Load sales · pipeline · authoring · factory adf-sales* |
+| Data Factory studio, monitoring pipeline or trigger runs, or managing linked services and integration runtimes | *adf-sales · pipeline runs · monitoring* |
+| Databricks (`*.azuredatabricks.net`): a notebook, job or job run, pipeline, SQL query, dashboard, ML experiment, Genie space or compute | *Load bronze · notebook* |
+| Databricks Catalog Explorer: a catalog, schema or table | *main.sales.orders · table* |
+
+Entra counts as security and identity; Data Factory and Databricks as data.
+
 ## Admin centres and studios
 
 Entra, Intune, the Microsoft 365, Exchange, Teams and Power Platform admin centres, Defender, Purview, Power Apps, Power Automate, Azure AI Foundry, Azure OpenAI Studio, Azure Machine Learning studio, Data Factory studio, Synapse Studio and Cloud Shell: *Devices · Intune*, with the page from the tab title.

@@ -1,15 +1,15 @@
 id = "azure"
 name = "Azure and Microsoft admin centres"
-version = "0.1.0"
+version = "0.2.0"
 author = "HourWarden"
 category = "Cloud"
 docs = "README.md"
-description = "Recognises what you do in the Azure portal: the resource you have open (App Service, virtual machine, Key Vault, SQL database, storage account, Log Analytics and many more), its resource group and what you look at (overview, configuration, logs, access control…). Also Entra, Intune and the Microsoft 365, Defender, Purview, Exchange and Teams admin centres, Azure Storage Explorer and Azure Data Studio. The activity log counts it as infrastructure, data, security and identity, monitoring, integration, AI, cost and governance, or administration."
+description = "Recognises what you do in the Azure portal: the resource you have open (App Service, virtual machine, Key Vault, SQL database, storage account, Log Analytics and many more), its resource group and what you look at (overview, configuration, logs, access control…). Inside Entra (users, groups, app registrations, conditional access, PIM…), storage accounts (containers, file shares, keys…), Data Factory studio (the pipeline, dataset or data flow you author, or the runs you monitor) and Databricks (notebooks, jobs, the SQL editor, Catalog Explorer tables…). Also Intune and the Microsoft 365, Defender, Purview, Exchange and Teams admin centres, Azure Storage Explorer and Azure Data Studio. The activity log counts it as infrastructure, data, security and identity, monitoring, integration, AI, cost and governance, or administration."
 api = 2
 capabilities = ["browser.address"]
 platforms = ["windows"]
 permissions = [
-    "Reads the address bar of the browser window in front, only on Azure and Microsoft admin pages",
+    "Reads the address bar of the browser window in front, only on Azure, Databricks and Microsoft admin pages",
     "Reads the title of the window in front",
     "Uses Windows UI Automation",
 ]
