@@ -1,6 +1,6 @@
 id = "fabric"
 name = "Microsoft Fabric and Power BI"
-version = "0.2.0"
+version = "0.3.0"
 author = "HourWarden"
 category = "Data"
 docs = "README.md"

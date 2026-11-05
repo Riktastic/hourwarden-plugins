@@ -1,6 +1,6 @@
 [package]
 name = "azure"
-version = "0.2.0"
+version = "0.3.0"
 edition = "2021"
 description = "What you do in the Azure portal and Microsoft admin centres, as a HourWarden WebAssembly plugin"
 

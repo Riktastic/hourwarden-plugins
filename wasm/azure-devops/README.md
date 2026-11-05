@@ -29,6 +29,10 @@ When a work item is open (also one opened from a board), the top bar offers its 
 
 This plugin says *what* you do. Which customer it is for comes from the rest of HourWarden, for example a rule or the customer's name in the organisation or project.
 
+## A page it does not know
+
+When the plugin falls back to a general description, its log (Plugins → Show log) says *Not recognised yet* with the shape of the address: IDs and numbers as `{id}`, without query values. Please report that line, so the page can be added.
+
 ## What it reads
 
 The title of the window in front, and the address bar of the browser only while an Azure DevOps page is in front. Nothing leaves the computer.

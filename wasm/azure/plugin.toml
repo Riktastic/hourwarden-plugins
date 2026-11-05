@@ -1,6 +1,6 @@
 id = "azure"
 name = "Azure and Microsoft admin centres"
-version = "0.2.0"
+version = "0.3.0"
 author = "HourWarden"
 category = "Cloud"
 docs = "README.md"

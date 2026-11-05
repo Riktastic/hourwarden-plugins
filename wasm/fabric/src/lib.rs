@@ -220,9 +220,24 @@ fn xmla_workspace(text: &str) -> Option<String> {
 struct State {
     browsers: Vec<String>,
     last: Option<String>,
+    unknown: Vec<String>,
 }
 
-static mut STATE: State = State { browsers: Vec::new(), last: None };
+static mut STATE: State = State { browsers: Vec::new(), last: None, unknown: Vec::new() };
+
+/// Logs a page this plugin does not recognise, once per shape, so it can be
+/// reported and added.
+fn note_unknown(seen: &mut Vec<String>, address: &str) {
+    let shape = hw::address_shape(address);
+    if !seen.contains(&shape) {
+        if seen.len() >= 200 {
+            seen.clear();
+        }
+        hw::log(&format!("Not recognised yet (please report it): {shape}"));
+        seen.push(shape);
+    }
+}
+
 static mut POLL: hw::ForegroundPoll = hw::ForegroundPoll::new();
 static mut POLL_MS: i64 = 3000;
 
@@ -246,7 +261,11 @@ fn on_foreground(event: &Value) {
             hw::status("degraded", "The address bar of this browser could not be found");
             return;
         };
-        from_address(&address, title)
+        let work = from_address(&address, title);
+        if work.as_ref().is_some_and(|w| w.kind == "workspace item" || w.kind == "Power BI") {
+            note_unknown(&mut s.unknown, &address);
+        }
+        work
     } else {
         from_desktop(&exe, title)
     };

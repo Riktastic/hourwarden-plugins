@@ -432,9 +432,34 @@ fn from_desktop(exe: &str, title: &str) -> Option<Work> {
 struct State {
     browsers: Vec<String>,
     last: Option<String>,
+    unknown: Vec<String>,
 }
 
-static mut STATE: State = State { browsers: Vec::new(), last: None };
+static mut STATE: State = State { browsers: Vec::new(), last: None, unknown: Vec::new() };
+
+/// Logs a page this plugin does not recognise, once per shape, so it can be
+/// reported and added.
+fn note_unknown(seen: &mut Vec<String>, address: &str) {
+    let shape = hw::address_shape(address);
+    if !seen.contains(&shape) {
+        if seen.len() >= 200 {
+            seen.clear();
+        }
+        hw::log(&format!("Not recognised yet (please report it): {shape}"));
+        seen.push(shape);
+    }
+}
+
+/// Whether a page fell back to a generic kind: the portal without a known
+/// page, a resource type not in the list, or a Data Factory or Databricks page
+/// without detail.
+fn unrecognised(w: &Work, address: &str) -> bool {
+    let generic_portal = w.kind == "Azure portal" && !address.to_lowercase().trim_end_matches('/').ends_with("#home");
+    let unknown_type = w.category == INFRA && w.name.is_some() && !TYPES.iter().any(|(_, k, _)| *k == w.kind) && w.kind.chars().all(|c| !c.is_uppercase());
+    let bare_service = (w.kind == "Data Factory" && w.doing.is_none()) || w.kind == "Databricks";
+    generic_portal || unknown_type || bare_service
+}
+
 static mut POLL: hw::ForegroundPoll = hw::ForegroundPoll::new();
 static mut POLL_MS: i64 = 3000;
 
@@ -464,7 +489,11 @@ fn on_foreground(event: &Value) {
             hw::status("degraded", "The address bar of this browser could not be found");
             return;
         };
-        from_address(&address, title)
+        let work = from_address(&address, title);
+        if work.as_ref().is_some_and(|w| unrecognised(w, &address)) {
+            note_unknown(&mut s.unknown, &address);
+        }
+        work
     } else {
         from_desktop(&exe, title)
     };
@@ -566,6 +595,16 @@ mod tests {
         assert_eq!(db(&format!("{host}/sql/editor/abc?o=1"), "Top customers - Databricks").describe(), "Top customers · SQL query");
         assert_eq!(db(&format!("{host}/compute/clusters?o=1"), "Compute - Databricks").kind, "compute");
         assert_eq!(db(&format!("{host}/compute/clusters?o=1"), "x").category, DATA);
+    }
+
+    #[test]
+    fn generic_pages_are_noted() {
+        let a = format!("https://portal.azure.com/#@x/resource/subscriptions/{SUB}/resourceGroups/rg/providers/Microsoft.Contoso/widgets/w1/overview");
+        assert!(unrecognised(&from_address(&a, "Microsoft Azure").unwrap(), &a));
+        let known = format!("https://portal.azure.com/#@x/resource/subscriptions/{SUB}/resourceGroups/rg/providers/Microsoft.Web/sites/app/overview");
+        assert!(!unrecognised(&from_address(&known, "Microsoft Azure").unwrap(), &known));
+        assert!(!unrecognised(&from_address("https://portal.azure.com/#home", "Microsoft Azure").unwrap(), "https://portal.azure.com/#home"));
+        assert!(unrecognised(&from_address("https://portal.azure.com/#view/Something_New", "Microsoft Azure").unwrap(), "https://portal.azure.com/#view/Something_New"));
     }
 
     #[test]

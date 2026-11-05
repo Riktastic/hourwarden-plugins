@@ -47,6 +47,10 @@ Each item also gets a kind of work. The activity log adds up the time per kind, 
 
 This plugin says *what* you do. Which customer it is for comes from the rest of HourWarden: add the *web-addresses* plugin, which reports the Microsoft tenant and workspace IDs of Fabric and Power BI addresses, and add those IDs to the customer's page.
 
+## A page it does not know
+
+When the plugin falls back to a general description, its log (Plugins → Show log) says *Not recognised yet* with the shape of the address: IDs and numbers as `{id}`, without query values. Please report that line, so the page can be added.
+
 ## What it reads
 
 The title of the window in front, and the address bar of the browser only while a Power BI or Fabric page is in front. Nothing leaves the computer.

@@ -56,6 +56,10 @@ The activity log adds up the time per kind of work.
 
 This plugin says *what* you do. The tenant and subscription come from the *web-addresses* plugin; add them to the customer's page and the time goes to the right customer.
 
+## A page it does not know
+
+When the plugin falls back to a general description, its log (Plugins → Show log) says *Not recognised yet* with the shape of the address: IDs and numbers as `{id}`, without query values. Please report that line, so the page can be added.
+
 ## What it reads
 
 The title of the window in front, and the address bar of the browser only while an Azure or Microsoft admin page is in front. Nothing leaves the computer.

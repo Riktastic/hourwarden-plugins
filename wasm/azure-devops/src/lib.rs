@@ -77,7 +77,8 @@ fn area(segment: &str, rest: &[String], query: &str) -> (&'static str, &'static 
         "_wiki" => ("wiki page", DOCS),
         "_artifacts" | "_packaging" => ("artifacts", CICD),
         "_settings" | "_admin" => ("settings", ADMIN),
-        _ => ("project", PLANNING),
+        // An area this plugin does not know yet; noted in the log.
+        _ => ("project page", PLANNING),
     }
 }
 
@@ -147,9 +148,24 @@ struct State {
     browsers: Vec<String>,
     offer: bool,
     last: Option<String>,
+    unknown: Vec<String>,
 }
 
-static mut STATE: State = State { browsers: Vec::new(), offer: true, last: None };
+static mut STATE: State = State { browsers: Vec::new(), offer: true, last: None, unknown: Vec::new() };
+
+/// Logs a page this plugin does not recognise, once per shape, so it can be
+/// reported and added.
+fn note_unknown(seen: &mut Vec<String>, address: &str) {
+    let shape = hw::address_shape(address);
+    if !seen.contains(&shape) {
+        if seen.len() >= 200 {
+            seen.clear();
+        }
+        hw::log(&format!("Not recognised yet (please report it): {shape}"));
+        seen.push(shape);
+    }
+}
+
 static mut POLL: hw::ForegroundPoll = hw::ForegroundPoll::new();
 static mut POLL_MS: i64 = 3000;
 
@@ -177,6 +193,9 @@ fn on_foreground(event: &Value) {
         return;
     };
     let Some(work) = from_address(&address, title) else { return };
+    if work.kind == "project page" {
+        note_unknown(&mut s.unknown, &address);
+    }
     let document = work.describe();
     if s.last.as_deref() != Some(document.as_str()) {
         hw::log(&format!("Now: {document}"));

@@ -116,6 +116,59 @@ pub fn app_name(exe: &str) -> String {
     exe.strip_suffix(".exe").unwrap_or(&exe).to_string()
 }
 
+/// The shape of a web address, for a plugin's log when it does not recognise
+/// a page: IDs and numbers become `{id}` and query values are left out, so
+/// the log shows which kind of page is missing without the data in it.
+/// "https://app.powerbi.com/groups/1a2b…/newthing/9f8e…?ctid=…&x=1" ->
+/// "app.powerbi.com/groups/{id}/newthing/{id}?ctid&x".
+pub fn address_shape(address: &str) -> String {
+    let a = address.trim();
+    let a = a.split_once("://").map_or(a, |(_, rest)| rest);
+    let (path, query) = a.split_once('?').unwrap_or((a, ""));
+    let id_like = |s: &str| {
+        let digits = s.bytes().filter(u8::is_ascii_digit).count();
+        !s.is_empty() && (s.bytes().all(|b| b.is_ascii_digit()) || (s.len() >= 16 && s.bytes().all(|b| b.is_ascii_hexdigit() || b == b'-')) || (s.len() >= 20 && digits >= 4))
+    };
+    let mut out = String::new();
+    let mut part = String::new();
+    let flush = |part: &mut String, out: &mut String| {
+        if !part.is_empty() {
+            out.push_str(if id_like(part) { "{id}" } else { part.as_str() });
+            part.clear();
+        }
+    };
+    for c in path.chars() {
+        if matches!(c, '/' | '#' | '~') {
+            flush(&mut part, &mut out);
+            out.push(c);
+        } else {
+            part.push(c);
+        }
+    }
+    flush(&mut part, &mut out);
+    let keys: Vec<&str> = query.split('&').filter_map(|kv| kv.split('=').next()).filter(|k| !k.is_empty()).collect();
+    if !keys.is_empty() {
+        out.push('?');
+        out.push_str(&keys.join("&"));
+    }
+    out.chars().take(300).collect()
+}
+
+#[cfg(test)]
+mod shape_tests {
+    use super::address_shape;
+
+    #[test]
+    fn ids_and_query_values_are_left_out() {
+        assert_eq!(
+            address_shape("https://app.powerbi.com/groups/1a2b3c4d-0000-1111-2222-333344445555/newthing/9f8e7d6c-aaaa-bbbb-cccc-ddddeeeeffff?ctid=abc&x=1"),
+            "app.powerbi.com/groups/{id}/newthing/{id}?ctid&x"
+        );
+        assert_eq!(address_shape("https://dev.azure.com/contoso/Web/_newarea/1234"), "dev.azure.com/contoso/Web/_newarea/{id}");
+        assert_eq!(address_shape("portal.azure.com/#view/Microsoft_Azure_Thing/Blade/~/overview"), "portal.azure.com/#view/Microsoft_Azure_Thing/Blade/~/overview");
+    }
+}
+
 /// A number setting as a whole number. The app stores numbers the user
 /// entered as floating point (`30.0`), so `as_i64` alone would miss them.
 pub fn setting_i64(value: &Value) -> Option<i64> {
