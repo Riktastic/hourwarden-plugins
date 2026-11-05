@@ -1,0 +1,13 @@
+[package]
+name = "azure-devops"
+version = "0.1.0"
+edition = "2021"
+description = "What you do in Azure DevOps, as a HourWarden WebAssembly plugin"
+
+[lib]
+name = "azure_devops"
+crate-type = ["cdylib"]
+
+[dependencies]
+hourwarden-plugin = { path = "../sdk" }
+serde_json = "1"

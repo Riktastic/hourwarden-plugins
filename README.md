@@ -20,6 +20,8 @@ HourWarden reads plugin repositories from GitHub (`https://github.com/Riktastic/
 | `web-addresses` | The domain of the page in front in Edge and Chrome, matched like a mail domain; the customer's Microsoft tenant, Azure subscription and Power BI or Fabric workspace in Azure portal, Entra, Power BI and Fabric addresses | Windows only |
 | `ticket-ids` | Ticket IDs (Jira, TopDesk, ServiceNow) in window titles, offered as the task | Windows and Linux |
 | `networks` | Wi-Fi network or VPN, as weak evidence for the customer | Windows and Linux |
+| `azure` | What you do in the Azure portal (the resource, its resource group and the blade) and the Microsoft admin centres (Entra, Intune, Microsoft 365, Defender, Purview…), Storage Explorer and Azure Data Studio | Windows only |
+| `azure-devops` | What you do in Azure DevOps: work items, boards, pull requests, repositories, pipeline runs, releases, test plans and the wiki, with organisation and project; a work item is offered as the task | Windows only |
 | `fabric` | What you do in Microsoft Fabric and Power BI: the report, semantic model, notebook, lakehouse or pipeline you have open, editing a semantic model, Power BI Desktop, Tabular Editor, DAX Studio and SSMS on an XMLA endpoint | Windows only |
 | `file-changes` | Files saved in customer folders | Windows and Linux |
 

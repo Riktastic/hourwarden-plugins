@@ -1,0 +1,41 @@
+id = "azure-devops"
+name = "Azure DevOps"
+version = "0.1.0"
+author = "HourWarden"
+category = "Development"
+docs = "README.md"
+description = "Recognises what you do in Azure DevOps: the work item, board, backlog, sprint or query, the repository and pull request, the pipeline run or release, test plans and the wiki, with the organisation and project. A work item you have open is offered as the task. The activity log counts it as planning, code review, development, CI/CD, testing or documentation."
+api = 2
+capabilities = ["browser.address"]
+platforms = ["windows"]
+permissions = [
+    "Reads the address bar of the browser window in front, only on Azure DevOps pages",
+    "Reads the title of the window in front",
+    "Uses Windows UI Automation",
+]
+
+[run]
+module = "plugin.wasm"
+
+[[settings]]
+key = "browsers"
+label = "Browsers"
+type = "list"
+description = "Programs whose address bar is read on Azure DevOps pages."
+default = ["msedge.exe", "chrome.exe", "firefox.exe", "brave.exe", "vivaldi.exe", "opera.exe", "arc.exe"]
+
+[[settings]]
+key = "offer_work_items"
+label = "Offer the work item as the task"
+type = "bool"
+description = "When a work item is open, the top bar offers its number and title as the task, like a ticket ID."
+default = true
+
+[[settings]]
+key = "poll_seconds"
+label = "Check every"
+type = "number"
+description = "How often the window in front is checked, in seconds."
+default = 3
+min = 1
+max = 30

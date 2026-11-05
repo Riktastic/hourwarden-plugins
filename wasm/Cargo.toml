@@ -11,6 +11,8 @@ resolver = "2"
 members = [
     "sdk",
     "admin-tools",
+    "azure",
+    "azure-devops",
     "fabric",
     "file-changes",
     "networks",

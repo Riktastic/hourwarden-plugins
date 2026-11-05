@@ -1,0 +1,13 @@
+[package]
+name = "azure"
+version = "0.1.0"
+edition = "2021"
+description = "What you do in the Azure portal and Microsoft admin centres, as a HourWarden WebAssembly plugin"
+
+[lib]
+name = "azure"
+crate-type = ["cdylib"]
+
+[dependencies]
+hourwarden-plugin = { path = "../sdk" }
+serde_json = "1"

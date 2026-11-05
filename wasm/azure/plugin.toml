@@ -1,0 +1,34 @@
+id = "azure"
+name = "Azure and Microsoft admin centres"
+version = "0.1.0"
+author = "HourWarden"
+category = "Cloud"
+docs = "README.md"
+description = "Recognises what you do in the Azure portal: the resource you have open (App Service, virtual machine, Key Vault, SQL database, storage account, Log Analytics and many more), its resource group and what you look at (overview, configuration, logs, access control…). Also Entra, Intune and the Microsoft 365, Defender, Purview, Exchange and Teams admin centres, Azure Storage Explorer and Azure Data Studio. The activity log counts it as infrastructure, data, security and identity, monitoring, integration, AI, cost and governance, or administration."
+api = 2
+capabilities = ["browser.address"]
+platforms = ["windows"]
+permissions = [
+    "Reads the address bar of the browser window in front, only on Azure and Microsoft admin pages",
+    "Reads the title of the window in front",
+    "Uses Windows UI Automation",
+]
+
+[run]
+module = "plugin.wasm"
+
+[[settings]]
+key = "browsers"
+label = "Browsers"
+type = "list"
+description = "Programs whose address bar is read on Azure and Microsoft admin pages."
+default = ["msedge.exe", "chrome.exe", "firefox.exe", "brave.exe", "vivaldi.exe", "opera.exe", "arc.exe"]
+
+[[settings]]
+key = "poll_seconds"
+label = "Check every"
+type = "number"
+description = "How often the window in front is checked, in seconds."
+default = 3
+min = 1
+max = 30

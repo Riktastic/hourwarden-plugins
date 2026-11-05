@@ -13,6 +13,26 @@
       }
     },
     {
+      "id": "azure",
+      "version": "0.1.0",
+      "path": "plugins/azure",
+      "files": {
+        "README.md": "17ce42e8b3442e87ef3e8211f3983cae6422e486a5f3bcdd16a389d385469843",
+        "plugin.toml": "199528dfccf2ab229403eb1d4fe6880581f8a1d9c7fa87ae103e6abbdff4f192",
+        "plugin.wasm": "62974a71ec35842d3c988392c7d430b61aed053e4c7b36051417a54943dd6e4d"
+      }
+    },
+    {
+      "id": "azure-devops",
+      "version": "0.1.0",
+      "path": "plugins/azure-devops",
+      "files": {
+        "README.md": "054ab25d76c459a02ab57ce0e1af8d017ca33a5e52efee27213443dfbd2ce4d4",
+        "plugin.toml": "e0bf0c83a4b61ddebb92dd5ecc4ee5bb1a74f623048af9195900bc1e619c463e",
+        "plugin.wasm": "b432570a404f7d7452215e6e29437a0c884f48e125e582c0b0a6a71d130abbd1"
+      }
+    },
+    {
       "id": "fabric",
       "version": "0.2.0",
       "path": "plugins/fabric",
