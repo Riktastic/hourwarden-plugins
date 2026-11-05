@@ -11,6 +11,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "fabric"
+version = "0.1.0"
+dependencies = [
+ "hourwarden-plugin",
+ "serde_json",
+]
+
+[[package]]
 name = "file-changes"
 version = "0.3.0"
 dependencies = [

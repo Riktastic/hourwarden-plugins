@@ -1,0 +1,13 @@
+[package]
+name = "fabric"
+version = "0.1.0"
+edition = "2021"
+description = "What you do in Microsoft Fabric and Power BI, as a HourWarden WebAssembly plugin"
+
+[lib]
+name = "fabric"
+crate-type = ["cdylib"]
+
+[dependencies]
+hourwarden-plugin = { path = "../sdk" }
+serde_json = "1"

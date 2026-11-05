@@ -13,6 +13,16 @@
       }
     },
     {
+      "id": "fabric",
+      "version": "0.1.0",
+      "path": "plugins/fabric",
+      "files": {
+        "README.md": "c7c190929564a812c370cd6509fb793a8c7d7cc58786d5a0bd83dfd33372c73b",
+        "plugin.toml": "fb55cff42c0786942e95eabcc84d527ca67877c7ca688b8e31d6e07514296ac3",
+        "plugin.wasm": "bedce7c6fa8f25bdfa39821c9aaf66a012752b1596ae69a304963cc3feacde2c"
+      }
+    },
+    {
       "id": "file-changes",
       "version": "0.3.0",
       "path": "plugins/file-changes",

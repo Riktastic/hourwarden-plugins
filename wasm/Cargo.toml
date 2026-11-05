@@ -11,6 +11,7 @@ resolver = "2"
 members = [
     "sdk",
     "admin-tools",
+    "fabric",
     "file-changes",
     "networks",
     "office-paths",

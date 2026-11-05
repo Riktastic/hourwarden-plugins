@@ -1,0 +1,34 @@
+id = "fabric"
+name = "Microsoft Fabric and Power BI"
+version = "0.1.0"
+author = "HourWarden"
+category = "Data"
+docs = "README.md"
+description = "Recognises what you do in Microsoft Fabric and Power BI: which report, semantic model, notebook, lakehouse, warehouse, pipeline or dataflow you have open in the browser, and whether you are editing a semantic model. Power BI Desktop, Tabular Editor, DAX Studio and SQL Server Management Studio on a workspace's XMLA endpoint are recognised too. The activity log and the entry then say, for example, Sales · semantic model · editing the model."
+api = 2
+capabilities = ["browser.address"]
+platforms = ["windows"]
+permissions = [
+    "Reads the address bar of the browser window in front, only on Power BI and Fabric pages",
+    "Reads the title of the window in front",
+    "Uses Windows UI Automation",
+]
+
+[run]
+module = "plugin.wasm"
+
+[[settings]]
+key = "browsers"
+label = "Browsers"
+type = "list"
+description = "Programs whose address bar is read on Power BI and Fabric pages."
+default = ["msedge.exe", "chrome.exe", "firefox.exe", "brave.exe", "vivaldi.exe", "opera.exe", "arc.exe"]
+
+[[settings]]
+key = "poll_seconds"
+label = "Check every"
+type = "number"
+description = "How often the window in front is checked, in seconds."
+default = 3
+min = 1
+max = 30
