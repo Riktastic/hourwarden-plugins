@@ -1,6 +1,6 @@
 [package]
 name = "web-addresses"
-version = "0.5.0"
+version = "0.6.0"
 edition = "2021"
 description = "Web domains and Microsoft IDs from the browser's address bar, as a HourWarden WebAssembly plugin"
 

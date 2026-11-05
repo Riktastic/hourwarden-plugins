@@ -154,12 +154,12 @@
     },
     {
       "id": "web-addresses",
-      "version": "0.5.0",
+      "version": "0.6.0",
       "path": "plugins/web-addresses",
       "files": {
         "README.md": "9893189ef8864cbdce0629b60ce4dc75730d638f2c23887fec14c65d5fe31cc7",
-        "plugin.toml": "fe39465f6bbedb07e0feb2bcf1e309fc14970f764aa711032215d43b86fa682f",
-        "plugin.wasm": "33f4b5cdc47b86b846b2267bdb5b2d793731f292555b30d4d7dae9abb3021fd8"
+        "plugin.toml": "eea57edfc92781c08260abf893b18769d5ec60cde3e79719c0f9c555ed03d124",
+        "plugin.wasm": "f30594cd7608141ba311b5c10915cb5b92487f10a987f321f98eb80ce5ed9569"
       }
     }
   ]

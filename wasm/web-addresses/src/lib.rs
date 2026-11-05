@@ -103,6 +103,23 @@ impl Patterns {
     }
 }
 
+/// The site of a SharePoint or OneDrive page, as an address that a customer
+/// folder can be: `https://contoso.sharepoint.com/sites/Finance` for any page
+/// or document under it (`/sites/…`, `/teams/…`, `/personal/…`).
+fn sharepoint_site(address: &str) -> Option<String> {
+    let a = address.trim();
+    let a = a.split_once("://").map_or(a, |(_, r)| r);
+    let a = a.split(['?', '#']).next().unwrap_or("");
+    let mut parts = a.split('/');
+    let host = parts.next()?.to_lowercase();
+    if !host.ends_with(".sharepoint.com") {
+        return None;
+    }
+    let kind = parts.next()?.to_lowercase();
+    let site = parts.next().filter(|s| !s.is_empty())?;
+    ["sites", "teams", "personal"].contains(&kind.as_str()).then(|| format!("https://{host}/{kind}/{site}"))
+}
+
 struct State {
     browsers: Vec<String>,
     ignore: Vec<String>,
@@ -143,7 +160,12 @@ fn on_foreground(event: &Value) {
     }
     let domains: Vec<String> = p.domains(&address).into_iter().filter(|d| !hw::domain_ignored(d, &s.ignore)).collect();
     if !domains.is_empty() {
-        hw::emit(&json!({ "method": "detail", "params": { "hwnd": event["hwnd"], "exe": exe, "mail_domains": domains } }));
+        let mut params = json!({ "hwnd": event["hwnd"], "exe": exe, "mail_domains": domains });
+        // A SharePoint or OneDrive site counts like a folder of a customer.
+        if let Some(site) = sharepoint_site(&address) {
+            params["path"] = json!(site);
+        }
+        hw::emit(&json!({ "method": "detail", "params": params }));
     }
     hw::status("running", "Reading the address bar");
 }
@@ -177,6 +199,15 @@ mod tests {
         assert_eq!(p.web_host("portal.contoso.com/login"), Some("portal.contoso.com".into()));
         assert_eq!(p.web_host("edge://settings"), None);
         assert_eq!(p.web_host("how to bake bread"), None);
+    }
+
+    #[test]
+    fn sharepoint_and_onedrive_sites() {
+        assert_eq!(sharepoint_site("https://Contoso.sharepoint.com/sites/Finance%20Team/Shared%20Documents/Forms/AllItems.aspx?id=x").as_deref(), Some("https://contoso.sharepoint.com/sites/Finance%20Team"));
+        assert_eq!(sharepoint_site("https://contoso.sharepoint.com/teams/Sales/_layouts/15/Doc.aspx?sourcedoc=%7B1%7D").as_deref(), Some("https://contoso.sharepoint.com/teams/Sales"));
+        assert_eq!(sharepoint_site("https://contoso-my.sharepoint.com/personal/jan_contoso_com/Documents").as_deref(), Some("https://contoso-my.sharepoint.com/personal/jan_contoso_com"));
+        assert_eq!(sharepoint_site("https://contoso.sharepoint.com/"), None, "the home page is no site");
+        assert_eq!(sharepoint_site("https://example.com/sites/x"), None);
     }
 
     #[test]
