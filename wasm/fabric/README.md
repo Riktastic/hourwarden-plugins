@@ -28,6 +28,21 @@ On the desktop:
 | DAX Studio | *workspace Finance · DAX queries · in DAX Studio* |
 | SQL Server Management Studio on an XMLA endpoint (`powerbi://…/myorg/Finance`) | *workspace Finance · semantic model · XMLA in SSMS* |
 
+## Kinds of work
+
+Each item also gets a kind of work. The activity log adds up the time per kind, so an entry or a day shows, for example, *Data modelling 2:10 · Reporting 1:05 · Data engineering 0:40*:
+
+| Kind of work | Items |
+|---|---|
+| Reporting | reports, paginated reports, dashboards, scorecards, apps, Power BI Desktop files |
+| Data modelling | semantic models (also in Tabular Editor and over XMLA), DAX Studio |
+| Data engineering | notebooks, lakehouses, Spark job definitions, environments, GraphQL APIs |
+| Data integration | data pipelines, dataflows, copy jobs, mirrored databases |
+| Data warehousing | warehouses, SQL analytics endpoints, SQL databases |
+| Real-time analytics | eventhouses, eventstreams, KQL databases and querysets, real-time dashboards, Activator |
+| Data science | ML models and experiments |
+| Administration | workspaces, admin portal, capacity settings, monitoring hub, deployment pipelines, OneLake catalog, variable libraries |
+
 ## Customer and tenant
 
 This plugin says *what* you do. Which customer it is for comes from the rest of HourWarden: add the *web-addresses* plugin, which reports the Microsoft tenant and workspace IDs of Fabric and Power BI addresses, and add those IDs to the customer's page.

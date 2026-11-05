@@ -28,7 +28,28 @@ struct Work {
     doing: Option<&'static str>,
 }
 
+/// The kind of work each kind of item is, for the activity log's totals.
+fn category(kind: &str) -> &'static str {
+    match kind {
+        "report" | "paginated report" | "dashboard" | "scorecard" | "app" | "Power BI Desktop file" => "Reporting",
+        "semantic model" | "DAX queries" => "Data modelling",
+        "notebook" | "lakehouse" | "Spark job definition" | "environment" | "GraphQL API" => "Data engineering",
+        "data pipeline" | "dataflow" | "copy job" | "mirrored database" => "Data integration",
+        "warehouse" | "SQL analytics endpoint" | "SQL database" => "Data warehousing",
+        "eventhouse" | "eventstream" | "KQL database" | "KQL queryset" | "real-time dashboard" | "Activator" => "Real-time analytics",
+        "ML model" | "ML experiment" => "Data science",
+        "workspace" | "workspace item" | "admin portal" | "capacity settings" | "monitoring hub" | "deployment pipeline" | "OneLake catalog" | "variable library" => {
+            "Administration"
+        }
+        _ => "Fabric",
+    }
+}
+
 impl Work {
+    fn category(&self) -> &'static str {
+        category(self.kind)
+    }
+
     fn describe(&self) -> String {
         let mut parts: Vec<String> = Vec::new();
         if let Some(n) = self.name.as_deref().filter(|n| !n.is_empty()) {
@@ -235,7 +256,7 @@ fn on_foreground(event: &Value) {
         hw::log(&format!("Now: {document}"));
         s.last = Some(document.clone());
     }
-    hw::emit(&json!({ "method": "detail", "params": { "hwnd": event["hwnd"], "exe": exe, "document": document } }));
+    hw::emit(&json!({ "method": "detail", "params": { "hwnd": event["hwnd"], "exe": exe, "document": document, "category": work.category() } }));
     hw::status("running", "Following Fabric and Power BI");
 }
 
@@ -275,6 +296,20 @@ mod tests {
         assert_eq!(at(&format!("datapipelines/{ID}"), "Nightly load - Microsoft Fabric"), "Nightly load · data pipeline");
         assert_eq!(at("list", "Finance - Power BI"), "Finance · workspace");
         assert_eq!(at(&format!("somethingnew/{ID}"), "X - Microsoft Fabric"), "X · workspace item");
+    }
+
+    #[test]
+    fn every_kind_has_a_category() {
+        for (_, kind) in ITEMS.iter().chain(PAGES.iter()) {
+            let c = category(kind);
+            assert!(c != "Fabric" || ["home", "browse"].contains(kind), "{kind} has no category");
+        }
+        for kind in ["Power BI Desktop file", "DAX queries"] {
+            assert_ne!(category(kind), "Fabric", "{kind}");
+        }
+        let w = from_address(&format!("https://app.powerbi.com/groups/{WS}/modeling/{ID}/modelView"), "Sales - Power BI").unwrap();
+        assert_eq!(w.category(), "Data modelling");
+        assert_eq!(from_desktop("tabulareditor3.exe", "Tabular Editor 3 - Model.bim").unwrap().category(), "Data modelling");
     }
 
     #[test]
