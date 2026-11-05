@@ -1,6 +1,6 @@
 [package]
 name = "fabric"
-version = "0.3.0"
+version = "0.4.0"
 edition = "2021"
 description = "What you do in Microsoft Fabric and Power BI, as a HourWarden WebAssembly plugin"
 

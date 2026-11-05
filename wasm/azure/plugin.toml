@@ -1,6 +1,6 @@
 id = "azure"
 name = "Azure and Microsoft admin centres"
-version = "0.3.0"
+version = "0.4.0"
 author = "HourWarden"
 category = "Cloud"
 docs = "README.md"
@@ -23,6 +23,13 @@ label = "Browsers"
 type = "list"
 description = "Programs whose address bar is read on Azure and Microsoft admin pages."
 default = ["msedge.exe", "chrome.exe", "firefox.exe", "brave.exe", "vivaldi.exe", "opera.exe", "arc.exe"]
+
+[[settings]]
+key = "note_unknown_pages"
+label = "Note pages it does not know"
+type = "bool"
+description = "Write the shape of a page this plugin does not recognise to its log (Show log), to report it. IDs, numbers and query values are left out, but names in the address (a resource group, a project) can show. Off by default; the log stays in memory and is never sent anywhere."
+default = false
 
 [[settings]]
 key = "poll_seconds"

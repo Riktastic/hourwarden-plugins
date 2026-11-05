@@ -14,32 +14,32 @@
     },
     {
       "id": "azure",
-      "version": "0.3.0",
+      "version": "0.4.0",
       "path": "plugins/azure",
       "files": {
-        "README.md": "b0da5a09e5e42c505dee4c850017411096bf6b20c7b20cd072adaad00feeed3d",
-        "plugin.toml": "4125a4428e2dfaa4b1884d3c039582d3aa7687c8eed02e2712f2820127260e91",
-        "plugin.wasm": "ed90d2e2ad9b4eddcea98c469885c40a62e6862e6708b9fe5906c8e8b48e6a62"
+        "README.md": "cf0890725fb9ed5b44d012ffddb1ded3d03690ab91b3002083b70bde2bc0c7c9",
+        "plugin.toml": "60f518e739f92cf09ae3f17230ad38d9c1f48d12c34bc80fe67c05fca1333e58",
+        "plugin.wasm": "6afd1d476dc1709b5f6be39f0c0f5ae31b18961cc19029323aec3dae9f969e29"
       }
     },
     {
       "id": "azure-devops",
-      "version": "0.2.0",
+      "version": "0.3.0",
       "path": "plugins/azure-devops",
       "files": {
-        "README.md": "60bcfe9c4350f997d31622e28e5024af103e86c0dc4d425b4edf1ae30abfe2c1",
-        "plugin.toml": "f5d696e655b574c56d77c4ed0fe857a96733a10cf817a02784cdad977325c16a",
-        "plugin.wasm": "d8016c0c8db3f37a2120cdc040e1735bc03aa64005596c5af6a1cf1f9e742d8e"
+        "README.md": "6d2c08fe18ab4068738f1bf3b5266670aed625dabce27a24cfc773dcabd4180f",
+        "plugin.toml": "d6c1899a7a0f0a0ca9170a8fd9787f47e104feea61e195a4e3186de382a46d93",
+        "plugin.wasm": "48c67daa5d638f13d9a8a570b2f2c8c3c91db51a8e405e1b2706add5d58641be"
       }
     },
     {
       "id": "fabric",
-      "version": "0.3.0",
+      "version": "0.4.0",
       "path": "plugins/fabric",
       "files": {
-        "README.md": "aceeb690bbae8671650db4f48f1efb8c7ee985014ab297b5bf32c6d1bd874dbb",
-        "plugin.toml": "bb5ddb84eedd63d0dcca4f45edc8f4d09b5e319200c8205f11d40cefab8df50b",
-        "plugin.wasm": "e7c059f3099afd906d119f0fe78dbdad265a4c791f342b9b540ea24819c3b4b2"
+        "README.md": "f25a0afaebea259b7997befebc2b88710181811b96588880cfac208575bb4165",
+        "plugin.toml": "6eccd5fd58df122a42e2f13a1acce10ec236b5429bc9ada40db6e85229045ca7",
+        "plugin.wasm": "376f30042a876ab1146c3b0d0f34f465737e784ef9d2f4c79c1f9d3a812b39b9"
       }
     },
     {

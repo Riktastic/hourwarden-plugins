@@ -12,7 +12,7 @@ dependencies = [
 
 [[package]]
 name = "azure"
-version = "0.3.0"
+version = "0.4.0"
 dependencies = [
  "hourwarden-plugin",
  "serde_json",
@@ -20,7 +20,7 @@ dependencies = [
 
 [[package]]
 name = "azure-devops"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "hourwarden-plugin",
  "serde_json",
@@ -28,7 +28,7 @@ dependencies = [
 
 [[package]]
 name = "fabric"
-version = "0.3.0"
+version = "0.4.0"
 dependencies = [
  "hourwarden-plugin",
  "serde_json",

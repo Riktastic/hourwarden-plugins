@@ -1,6 +1,6 @@
 id = "azure-devops"
 name = "Azure DevOps"
-version = "0.2.0"
+version = "0.3.0"
 author = "HourWarden"
 category = "Development"
 docs = "README.md"
@@ -30,6 +30,13 @@ label = "Offer the work item as the task"
 type = "bool"
 description = "When a work item is open, the top bar offers its number and title as the task, like a ticket ID."
 default = true
+
+[[settings]]
+key = "note_unknown_pages"
+label = "Note pages it does not know"
+type = "bool"
+description = "Write the shape of a page this plugin does not recognise to its log (Show log), to report it. IDs, numbers and query values are left out, but names in the address (a resource group, a project) can show. Off by default; the log stays in memory and is never sent anywhere."
+default = false
 
 [[settings]]
 key = "poll_seconds"

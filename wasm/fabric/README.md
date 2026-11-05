@@ -49,7 +49,7 @@ This plugin says *what* you do. Which customer it is for comes from the rest of 
 
 ## A page it does not know
 
-When the plugin falls back to a general description, its log (Plugins → Show log) says *Not recognised yet* with the shape of the address: IDs and numbers as `{id}`, without query values. Please report that line, so the page can be added.
+With *Note pages it does not know* on (off by default), when the plugin falls back to a general description, its log (Plugins → Show log) says *Not recognised yet* with the shape of the address: IDs and numbers as `{id}`, without query values. Please report that line, so the page can be added. Names in the address (a resource group, a project) can show in it; the log stays in memory and is never sent anywhere.
 
 ## What it reads
 

@@ -149,9 +149,24 @@ struct State {
     offer: bool,
     last: Option<String>,
     unknown: Vec<String>,
+    report: bool,
 }
 
-static mut STATE: State = State { browsers: Vec::new(), offer: true, last: None, unknown: Vec::new() };
+static mut STATE: State = State { browsers: Vec::new(), offer: true, last: None, unknown: Vec::new(), report: false };
+
+/// Clues for the customer: the organisation and the project, as
+/// `devops:contoso` and `devops:contoso/web shop`. HourWarden learns which
+/// customer they belong to (Remember for this project), and links a project
+/// once its organisation is known.
+fn clues(place: Option<&str>) -> Vec<String> {
+    let Some(place) = place.map(str::to_lowercase) else { return Vec::new() };
+    let org = place.split('/').next().unwrap_or("").to_string();
+    let mut out = vec![format!("devops:{org}")];
+    if place.contains('/') {
+        out.push(format!("devops:{place}"));
+    }
+    out
+}
 
 /// Logs a page this plugin does not recognise, once per shape, so it can be
 /// reported and added.
@@ -173,6 +188,7 @@ fn configure(settings: &Value) {
     let s = unsafe { &mut STATE };
     s.browsers = hw::string_list(&settings["browsers"], DEFAULT_BROWSERS).iter().map(|b| hw::app_name(b)).collect();
     s.offer = settings["offer_work_items"].as_bool().unwrap_or(true);
+    s.report = settings["note_unknown_pages"].as_bool().unwrap_or(false);
     unsafe { POLL_MS = hw::poll_ms(settings, 3) };
 }
 
@@ -193,7 +209,7 @@ fn on_foreground(event: &Value) {
         return;
     };
     let Some(work) = from_address(&address, title) else { return };
-    if work.kind == "project page" {
+    if s.report && work.kind == "project page" {
         note_unknown(&mut s.unknown, &address);
     }
     let document = work.describe();
@@ -201,7 +217,7 @@ fn on_foreground(event: &Value) {
         hw::log(&format!("Now: {document}"));
         s.last = Some(document.clone());
     }
-    let mut params = json!({ "hwnd": event["hwnd"], "exe": exe, "document": document, "category": work.category });
+    let mut params = json!({ "hwnd": event["hwnd"], "exe": exe, "document": document, "category": work.category, "mail_domains": clues(work.place.as_deref()) });
     if let (true, Some(id)) = (s.offer, &work.work_item) {
         params["ticket_id"] = json!(id);
         params["ticket_title"] = json!(work.name.as_deref().map(work_item_title).unwrap_or_default());
@@ -250,6 +266,13 @@ mod tests {
         assert_eq!(at("_wiki/wikis/Web.wiki/12/Release-notes", "Release notes - Wiki").category, DOCS);
         assert_eq!(at("_testplans/define?planId=5", "Plan - Test Plans").category, TESTING);
         assert_eq!(at("_settings/repositories", "Settings - Azure DevOps").category, ADMIN);
+    }
+
+    #[test]
+    fn clues_for_the_customer() {
+        assert_eq!(clues(Some("Contoso/Web Shop")), vec!["devops:contoso".to_string(), "devops:contoso/web shop".into()]);
+        assert_eq!(clues(Some("contoso")), vec!["devops:contoso".to_string()]);
+        assert!(clues(None).is_empty());
     }
 
     #[test]

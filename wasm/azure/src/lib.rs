@@ -433,9 +433,40 @@ struct State {
     browsers: Vec<String>,
     last: Option<String>,
     unknown: Vec<String>,
+    report: bool,
 }
 
-static mut STATE: State = State { browsers: Vec::new(), last: None, unknown: Vec::new() };
+static mut STATE: State = State { browsers: Vec::new(), last: None, unknown: Vec::new(), report: false };
+
+/// A GUID such as a tenant, subscription or workspace ID.
+fn is_guid(s: &str) -> bool {
+    let parts: Vec<&str> = s.split('-').collect();
+    parts.len() == 5 && parts.iter().zip([8, 4, 4, 4, 12]).all(|(p, n)| p.len() == n && p.chars().all(|c| c.is_ascii_hexdigit()))
+}
+
+/// Clues for the customer from a portal address: the tenant (`#@contoso.onmicrosoft.com`
+/// or its ID), the subscription, and the resource group as
+/// `azure-rg:<subscription>/<group>`. HourWarden learns which customer they
+/// belong to, and links the subscription and groups once the tenant is known.
+fn clues_from_address(address: &str) -> Vec<String> {
+    let lower = address.to_lowercase();
+    let Some(fragment) = lower.split_once('#').map(|(_, f)| f) else { return Vec::new() };
+    let seg: Vec<&str> = fragment.split('/').filter(|s| !s.is_empty()).collect();
+    let mut out = Vec::new();
+    if let Some(t) = seg.iter().find_map(|s| s.strip_prefix('@')).filter(|t| is_guid(t) || t.contains('.')) {
+        out.push(t.to_string());
+    }
+    let after = |word: &str| seg.iter().position(|s| *s == word).and_then(|i| seg.get(i + 1)).copied();
+    let sub = after("subscriptions").filter(|s| is_guid(s));
+    if let Some(sub) = sub {
+        out.push(sub.to_string());
+    }
+    if let (Some(sub), Some(rg)) = (sub, after("resourcegroups")) {
+        out.push(format!("azure-rg:{sub}/{}", rg.replace("%20", " ")));
+    }
+    out
+}
+
 
 /// Logs a page this plugin does not recognise, once per shape, so it can be
 /// reported and added.
@@ -466,6 +497,7 @@ static mut POLL_MS: i64 = 3000;
 fn configure(settings: &Value) {
     let s = unsafe { &mut STATE };
     s.browsers = hw::string_list(&settings["browsers"], DEFAULT_BROWSERS).iter().map(|b| hw::app_name(b)).collect();
+    s.report = settings["note_unknown_pages"].as_bool().unwrap_or(false);
     unsafe { POLL_MS = hw::poll_ms(settings, 3) };
 }
 
@@ -481,6 +513,7 @@ fn on_foreground(event: &Value) {
     let s = unsafe { &mut STATE };
     let exe = event["exe"].as_str().unwrap_or("").to_lowercase();
     let title = event["title"].as_str().unwrap_or("");
+    let mut clues: Vec<String> = Vec::new();
     let work = if s.browsers.contains(&hw::app_name(&exe)) {
         if !looks_like_azure(title) {
             return;
@@ -490,9 +523,10 @@ fn on_foreground(event: &Value) {
             return;
         };
         let work = from_address(&address, title);
-        if work.as_ref().is_some_and(|w| unrecognised(w, &address)) {
+        if s.report && work.as_ref().is_some_and(|w| unrecognised(w, &address)) {
             note_unknown(&mut s.unknown, &address);
         }
+        clues = clues_from_address(&address);
         work
     } else {
         from_desktop(&exe, title)
@@ -503,7 +537,11 @@ fn on_foreground(event: &Value) {
         hw::log(&format!("Now: {document}"));
         s.last = Some(document.clone());
     }
-    hw::emit(&json!({ "method": "detail", "params": { "hwnd": event["hwnd"], "exe": exe, "document": document, "category": work.category } }));
+    let mut params = json!({ "hwnd": event["hwnd"], "exe": exe, "document": document, "category": work.category });
+    if !clues.is_empty() {
+        params["mail_domains"] = json!(clues);
+    }
+    hw::emit(&json!({ "method": "detail", "params": params }));
     hw::status("running", "Following Azure");
 }
 
@@ -605,6 +643,13 @@ mod tests {
         assert!(!unrecognised(&from_address(&known, "Microsoft Azure").unwrap(), &known));
         assert!(!unrecognised(&from_address("https://portal.azure.com/#home", "Microsoft Azure").unwrap(), "https://portal.azure.com/#home"));
         assert!(unrecognised(&from_address("https://portal.azure.com/#view/Something_New", "Microsoft Azure").unwrap(), "https://portal.azure.com/#view/Something_New"));
+    }
+
+    #[test]
+    fn clues_for_the_customer() {
+        let a = format!("https://portal.azure.com/#@contoso.onmicrosoft.com/resource/subscriptions/{SUB}/resourceGroups/RG-Web/providers/Microsoft.Web/sites/app/overview");
+        assert_eq!(clues_from_address(&a), vec!["contoso.onmicrosoft.com".to_string(), SUB.to_string(), format!("azure-rg:{SUB}/rg-web")]);
+        assert!(clues_from_address("https://portal.azure.com/#home").is_empty());
     }
 
     #[test]
